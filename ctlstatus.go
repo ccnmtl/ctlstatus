@@ -61,7 +61,7 @@ func newIncidentHandler(w http.ResponseWriter, r *http.Request) {
 	incident := &Incident{
 		Status:      "investigating",
 		Start:       time.Now(),
-		End:         time.Now(),
+		End:         time.Now().Add(time.Duration(24) * time.Hour),
 		Summary:     r.FormValue("summary"),
 		Description: r.FormValue("description"),
 	}
