@@ -1,8 +1,8 @@
 package ctlstatus
 
 import (
-	"fmt"
 	"net/http"
+	"text/template"
 	"time"
 
 	"google.golang.org/appengine/datastore"
@@ -37,6 +37,12 @@ func init() {
 	//	http.HandleFunc("/maintenance/new", newIncidentHandler)
 }
 
+var indexTemplate = template.Must(template.ParseFiles("templates/base.html",
+	"templates/index.html"))
+
 func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprint(w, "status")
+	tc := make(map[string]interface{})
+	if err := indexTemplate.Execute(w, tc); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
