@@ -2,15 +2,26 @@
 <h1>Status</h1>
 
 {{ range .incidents }}
-<h2>[{{.Status}}] {{.Start}} {{.Summary}}</h2>
-<p>{{.Description}}</p>
+<div class="panel panel-default">
+    <div class="panel-heading">[{{.Status}}] {{.Start}} {{.Summary}}</div>
+    <div class="panel-body">
+        <p>{{.Description}}</p>
+    </div>
+    <div class="panel-body">
+    </div>
 {{ end }}
 
 
 <h2>New Incident</h2>
-<form action="/incident/new" method="post">
-    <input type="text" name="summary" placeholder="Summary"/>
-    <textarea name="description">Description of Incident</textarea>
-    <input type="submit" value="new incident"/>
+<form action="/incident/new" method="post" class="form">
+    <div class="form-group">
+        <label for="summary">Summary</label>
+        <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label for="description">Description</label>
+        <textarea class="form-control" name="description">Description of Incident</textarea>
+    </div>
+    <input type="submit" value="new incident" class="btn btn-primary"/>
 </form>
 {{end}}
