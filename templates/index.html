@@ -1,3 +1,16 @@
 {{define "content"}}
-  <h1>Status</h1>
+<h1>Status</h1>
+
+{{ range .incidents }}
+<h2>[{{.Status}}] {{.Start}} {{.Summary}}</h2>
+<p>{{.Description}}</p>
+{{ end }}
+
+
+<h2>New Incident</h2>
+<form action="/incident/new" method="post">
+    <input type="text" name="summary" placeholder="Summary"/>
+    <textarea name="description">Description of Incident</textarea>
+    <input type="submit" value="new incident"/>
+</form>
 {{end}}
