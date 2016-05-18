@@ -3,7 +3,7 @@
     <div class="panel-heading">Incident: {{.incident.Summary}}</div>
     <div class="panel-body">
 
-<p><b>{{.incident.DisplayDuration}}</b></p>
+        <p><span class="label label-{{.incident.BootstrapClass}}">{{.incident.Status}}</span> <b>{{.incident.DisplayDuration}}</b></p>
 
 <p>{{.incident.Status}} {{.incident.Start}}</p>
 <p>{{.incident.Description}}</p>
