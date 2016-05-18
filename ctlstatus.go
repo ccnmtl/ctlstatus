@@ -66,12 +66,21 @@ func (i Incident) BootstrapClass() string {
 	return classes[i.Status]
 }
 
+func (i Incident) Updates(ctx appengine.Context, k *datastore.Key) ([]Update, error) {
+	q := datastore.NewQuery("Update").Ancestor(k).Order("-Timestamp").Limit(100)
+	updates := make([]Update, 0, 100)
+	_, err := q.GetAll(ctx, &updates)
+	if err != nil {
+		return []Update{}, err
+	}
+	return updates, nil
+}
+
 type Update struct {
-	Key       string
 	Incident  *datastore.Key
 	Status    string
-	timestamp time.Time
-	comment   string
+	Timestamp time.Time
+	Comment   string
 }
 
 type MaintenanceWindow struct {
@@ -164,6 +173,17 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	update := &Update{
+		Incident:  key,
+		Status:    incident.Status,
+		Timestamp: time.Now(),
+		Comment:   "New Incident entered",
+	}
+	ukey := datastore.NewIncompleteKey(ctx, "Update", key)
+	if _, err := datastore.Put(ctx, ukey, update); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	http.Redirect(w, r, incident.Path(), http.StatusFound)
 }
 
@@ -194,6 +214,14 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 	}
 	tc := make(map[string]interface{})
 	tc["incident"] = incident
+
+	updates, err := incident.Updates(ctx, k)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	tc["updates"] = updates
+
 	u := user.Current(ctx)
 	if u == nil {
 		url, _ := user.LoginURL(ctx, r.URL.String())

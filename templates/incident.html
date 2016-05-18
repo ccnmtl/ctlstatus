@@ -8,6 +8,13 @@
 <p>{{.incident.Status}} {{.incident.Start}}</p>
 <p>{{.incident.Description}}</p>
     </div>
+    <div class="panel-body">
+        <ul class="list-group">
+            {{ range .updates }}
+            <li class="list-group-item"><span class="label label-default">{{.Status}}</span> <i>{{.Timestamp}}</i>: {{.Comment}}</li>
+            {{ end }}
+        </ul>
+    </div>
 </div>
 
 {{ if and .user .user.Admin }}
