@@ -95,18 +95,6 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
-func getIncident(ctx appengine.Context, key string) (*datastore.Key, *Incident, error) {
-	gq := datastore.NewQuery("Incident").Filter("Key=", key).Limit(1)
-	incidents := make([]Incident, 0, 1)
-	incidentkeys, err := gq.GetAll(ctx, &incidents)
-	ctx.Errorf("keys found: %v", incidentkeys)
-	ctx.Errorf("incidents: %v", incidents)
-	if err != nil {
-		return nil, nil, err
-	}
-	return incidentkeys[0], &incidents[0], err
-}
-
 var incidentTemplate = template.Must(template.ParseFiles("templates/base.html",
 	"templates/incident.html"))
 
@@ -122,8 +110,9 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ikey := parts[2]
-	_, incident, err := getIncident(ctx, ikey)
-	if err != nil {
+	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
+	var incident Incident
+	if err := datastore.Get(ctx, k, &incident); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	tc := make(map[string]interface{})
@@ -141,12 +130,8 @@ func deleteIncident(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ikey := parts[2]
-	k, _, err := getIncident(ctx, ikey)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	err = datastore.Delete(ctx, k)
+	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
+	err := datastore.Delete(ctx, k)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
