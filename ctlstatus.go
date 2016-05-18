@@ -12,14 +12,6 @@ import (
 	"appengine/user"
 )
 
-type MaintenanceWindow struct {
-	Key         string
-	Summary     string
-	Start       time.Time
-	End         time.Time
-	Description string
-}
-
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz"
 
 func newKey() string {
