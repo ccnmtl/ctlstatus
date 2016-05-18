@@ -1,6 +1,7 @@
 package ctlstatus
 
 import (
+	"fmt"
 	"math/rand"
 	"net/http"
 	"strings"
@@ -33,6 +34,26 @@ func (i Incident) StatusOptions() []string {
 		"resolved":      {"investigating", "partial", "outage"},
 	}
 	return options[i.Status]
+}
+
+// if it's resolved, total time between start + end
+// otherwise, time from start until now
+func (i Incident) Duration() time.Duration {
+	if i.Status == "resolved" {
+		return i.End.Sub(i.Start)
+	}
+	return time.Since(i.Start)
+}
+
+func (i Incident) DisplayDuration() string {
+	d := i.Duration()
+	m := int(d.Minutes())
+	hours := m / 60.0
+	minutes := m % 60
+	if hours >= 1 {
+		return fmt.Sprintf("%d hours %d minutes", hours, minutes)
+	}
+	return fmt.Sprintf("%d minutes", minutes)
 }
 
 type Update struct {
