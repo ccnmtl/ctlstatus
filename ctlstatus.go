@@ -9,6 +9,7 @@ import (
 
 	"appengine"
 	"appengine/datastore"
+	"appengine/user"
 )
 
 type Incident struct {
@@ -84,6 +85,16 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 	tc := make(map[string]interface{})
 	tc["incidents"] = incidents
+	u := user.Current(ctx)
+	tc["user"] = u
+	if u == nil {
+		url, _ := user.LoginURL(ctx, r.URL.String())
+		tc["signin_url"] = url
+	} else {
+		url, _ := user.LogoutURL(ctx, r.URL.String())
+		tc["signout_url"] = url
+	}
+	tc["user"] = u
 	if err := indexTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -91,6 +102,11 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 func newIncident(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
+	u := user.Current(ctx)
+	if u == nil || !u.Admin {
+		http.Error(w, "you must be logged in as an admin", http.StatusForbidden)
+		return
+	}
 	k := newKey()
 	key := datastore.NewKey(ctx, "Incident", k, 0, nil)
 	incident := &Incident{
@@ -136,6 +152,15 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 	}
 	tc := make(map[string]interface{})
 	tc["incident"] = incident
+	u := user.Current(ctx)
+	if u == nil {
+		url, _ := user.LoginURL(ctx, r.URL.String())
+		tc["signin_url"] = url
+	} else {
+		url, _ := user.LogoutURL(ctx, r.URL.String())
+		tc["signout_url"] = url
+	}
+	tc["user"] = u
 	if err := incidentTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -143,6 +168,11 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 
 func deleteIncident(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
+	u := user.Current(ctx)
+	if u == nil || !u.Admin {
+		http.Error(w, "you must be logged in as an admin", http.StatusForbidden)
+		return
+	}
 	parts := strings.Split(r.URL.String(), "/")
 	if len(parts) < 3 {
 		http.Error(w, "bad request", 404)
@@ -160,6 +190,11 @@ func deleteIncident(w http.ResponseWriter, r *http.Request) {
 
 func updateIncident(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
+	u := user.Current(ctx)
+	if u == nil || !u.Admin {
+		http.Error(w, "you must be logged in as an admin", http.StatusForbidden)
+		return
+	}
 	parts := strings.Split(r.URL.String(), "/")
 	if len(parts) < 3 {
 		http.Error(w, "bad request", 404)

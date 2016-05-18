@@ -4,6 +4,7 @@
 <p>{{.incident.Status}} {{.incident.Start}}</p>
 <p>{{.incident.Description}}</p>
 
+{{ if and .user .user.Admin }}
 <form action="{{.incident.Path}}update" method="post">
     <fieldset><legend>Update</legend>
         <div class="form-group">
@@ -52,4 +53,5 @@
     </fieldset>
 </form>
 
+{{ end }}
 {{end}}
