@@ -116,6 +116,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 	tc := make(map[string]interface{})
 	tc["incidents"] = incidents
+	tc["current"] = currentIncident(incidents)
 	u := user.Current(ctx)
 	tc["user"] = u
 	if u == nil {
@@ -129,6 +130,16 @@ func index(w http.ResponseWriter, r *http.Request) {
 	if err := indexTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func currentIncident(incidents []Incident) *Incident {
+	now := time.Now()
+	for _, incident := range incidents {
+		if incident.End.After(now) {
+			return &incident
+		}
+	}
+	return nil
 }
 
 func newIncident(w http.ResponseWriter, r *http.Request) {

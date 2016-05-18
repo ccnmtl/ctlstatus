@@ -1,5 +1,17 @@
 {{define "content"}}
-<h1>Status</h1>
+
+<div class="jumbotron">
+{{ if .current }}
+    <div class="alert alert-{{.current.BootstrapClass}}"><h1>{{.current.Status}}</h1>
+        <p><a href="{{.current.Path}}">{{.current.Summary}}</a></p>
+    </div>
+{{ else }}
+    <div class="alert alert-success"><h1>OK</h1>
+        <p>No known issues at this time</p>
+    </div>
+{{ end }}
+</div>
+
 
 {{ range .incidents }}
 <div class="panel panel-default panel-{{.BootstrapClass}}">
