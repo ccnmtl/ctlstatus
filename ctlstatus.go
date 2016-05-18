@@ -3,6 +3,7 @@ package ctlstatus
 import (
 	"math/rand"
 	"net/http"
+	"strings"
 	"text/template"
 	"time"
 
@@ -51,7 +52,7 @@ func init() {
 	rand.Seed(time.Now().UTC().UnixNano())
 	http.HandleFunc("/", index)
 	http.HandleFunc("/incident/new", newIncident)
-	//	http.HandleFunc("/incident/", incidentDetailHandler)
+	http.HandleFunc("/incident/", showIncident)
 	//	http.HandleFunc("/maintenance/new", newMaintenanceWindow)
 }
 
@@ -92,4 +93,38 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func getIncident(ctx appengine.Context, key string) (*datastore.Key, *Incident, error) {
+	gq := datastore.NewQuery("Incident").Filter("Key=", key).Limit(1)
+	incidents := make([]Incident, 0, 1)
+	incidentkeys, err := gq.GetAll(ctx, &incidents)
+	ctx.Errorf("keys found: %v", incidentkeys)
+	ctx.Errorf("incidents: %v", incidents)
+	if err != nil {
+		return nil, nil, err
+	}
+	return incidentkeys[0], &incidents[0], err
+}
+
+var incidentTemplate = template.Must(template.ParseFiles("templates/base.html",
+	"templates/incident.html"))
+
+func showIncident(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	parts := strings.Split(r.URL.String(), "/")
+	if len(parts) < 3 {
+		http.Error(w, "bad request", 404)
+		return
+	}
+	ikey := parts[2]
+	_, incident, err := getIncident(ctx, ikey)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	tc := make(map[string]interface{})
+	tc["incident"] = incident
+	if err := incidentTemplate.Execute(w, tc); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
 }
