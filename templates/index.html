@@ -25,10 +25,10 @@
         <span class="pull-right"><b>{{.DisplayDuration}}</b></span>
         <dl class="dl-horizontal">
             <dt>Started:</dt>
-            <dd>{{.Start}}</dd>
+            <dd>{{.DisplayStart}}</dd>
             {{ if eq .Status "resolved" }}
             <dt>Ended:</dt>
-            <dd>{{.End}}</dd>
+            <dd>{{.DisplayEnd}}</dd>
             {{ end }}
         </dl>
         

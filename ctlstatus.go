@@ -84,6 +84,14 @@ func (i Incident) StartDate() string {
 	return i.Start.Format("Jan 2")
 }
 
+func (i Incident) DisplayStart() string {
+	return i.Start.Format("Mon Jan 2 15:04 2006")
+}
+
+func (i Incident) DisplayEnd() string {
+	return i.End.Format("Mon Jan 2 15:04 2006")
+}
+
 type Update struct {
 	Incident  *datastore.Key
 	Status    string
@@ -93,6 +101,10 @@ type Update struct {
 
 func (u Update) BootstrapClass() string {
 	return BootstrapClassFromStatus(u.Status)
+}
+
+func (u Update) DisplayTimestamp() string {
+	return u.Timestamp.Format("Mon Jan 2 15:04 2006")
 }
 
 type MaintenanceWindow struct {

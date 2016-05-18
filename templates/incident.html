@@ -9,10 +9,10 @@
         <span class="pull-right"><b>{{.incident.DisplayDuration}}</b></span>
         <dl class="dl-horizontal">
             <dt>Started:</dt>
-            <dd>{{.incident.Start}}</dd>
+            <dd>{{.incident.DisplayStart}}</dd>
             {{ if eq .incident.Status "resolved" }}
             <dt>Ended:</dt>
-            <dd>{{.incident.End}}</dd>
+            <dd>{{.incident.DisplayEnd}}</dd>
             {{ end }}
         </dl>
 
@@ -22,7 +22,9 @@
         <h2>Timeline</h2>
         <ul class="list-group">
             {{ range .updates }}
-            <li class="list-group-item"><span class="label label-{{.BootstrapClass}}">{{.Status}}</span> <i>{{.Timestamp}}</i>: {{.Comment}}</li>
+            <li class="list-group-item">
+                <span class="label label-{{.BootstrapClass}} pull-right">{{.Status}}</span>
+                <span class="text-muted">{{.DisplayTimestamp}}</span>: {{.Comment}}</li>
             {{ end }}
         </ul>
     </div>
