@@ -4,4 +4,11 @@
 <p>{{.incident.Status}} {{.incident.Start}}</p>
 <p>{{.incident.Description}}</p>
 
+
+<form action="/incident/{{.incident.Key}}/delete" method="post">
+    <fieldset><legend>Delete</legend>
+        <input type="submit" class="btn btn-danger" value="delete"/>
+    </fieldset>
+</form>
+
 {{end}}

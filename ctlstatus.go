@@ -117,6 +117,10 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", 404)
 		return
 	}
+	if len(parts) == 4 && parts[3] == "delete" {
+		deleteIncident(w, r)
+		return
+	}
 	ikey := parts[2]
 	_, incident, err := getIncident(ctx, ikey)
 	if err != nil {
@@ -127,4 +131,25 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 	if err := incidentTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
+}
+
+func deleteIncident(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	parts := strings.Split(r.URL.String(), "/")
+	if len(parts) < 3 {
+		http.Error(w, "bad request", 404)
+		return
+	}
+	ikey := parts[2]
+	k, _, err := getIncident(ctx, ikey)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	err = datastore.Delete(ctx, k)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
 }
