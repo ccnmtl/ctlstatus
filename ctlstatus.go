@@ -285,21 +285,25 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	original_status := incident.Status
+	incident.Status = r.FormValue("status")
+	incident.Summary = r.FormValue("summary")
+	incident.Description = r.FormValue("description")
 
 	start, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("start"))
 	if err != nil {
 		start = incident.Start
 	}
+	incident.Start = start
 
 	end, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("end"))
 	if err != nil {
 		end = incident.End
+		if incident.Status == "resolved" && original_status != "resolved" {
+			end = time.Now()
+		}
 	}
 
-	incident.Status = r.FormValue("status")
-	incident.Summary = r.FormValue("summary")
-	incident.Description = r.FormValue("description")
-	incident.Start = start
 	incident.End = end
 
 	_, err = datastore.Put(ctx, k, &incident)

@@ -46,11 +46,13 @@
             <input type="text" name="start" value="{{.incident.Start}}" id="start" class="form-control"/>
         </div>
 
+{{ if eq .incident.Status "resolved" }}        
         <div class="form-group">
             <label for="end">End Time</label>
             <input type="text" name="end" value="{{.incident.End}}" id="end" class="form-control"/>
         </div>
-
+{{ end }}
+        
         <div class="form-group">
             <label for="update">Update Comment</label>
             <textarea class="form-control" name="update" placeholder="update"></textarea>
