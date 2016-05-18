@@ -56,14 +56,18 @@ func (i Incident) DisplayDuration() string {
 	return fmt.Sprintf("%d minutes", minutes)
 }
 
-func (i Incident) BootstrapClass() string {
+func BootstrapClassFromStatus(s string) string {
 	classes := map[string]string{
 		"investigating": "warning",
 		"partial":       "danger",
 		"outage":        "danger",
 		"resolved":      "success",
 	}
-	return classes[i.Status]
+	return classes[s]
+}
+
+func (i Incident) BootstrapClass() string {
+	return BootstrapClassFromStatus(i.Status)
 }
 
 func (i Incident) Updates(ctx appengine.Context, k *datastore.Key) ([]Update, error) {
@@ -81,6 +85,10 @@ type Update struct {
 	Status    string
 	Timestamp time.Time
 	Comment   string
+}
+
+func (u Update) BootstrapClass() string {
+	return BootstrapClassFromStatus(u.Status)
 }
 
 type MaintenanceWindow struct {

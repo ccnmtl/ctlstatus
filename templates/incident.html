@@ -11,7 +11,7 @@
     <div class="panel-body">
         <ul class="list-group">
             {{ range .updates }}
-            <li class="list-group-item"><span class="label label-default">{{.Status}}</span> <i>{{.Timestamp}}</i>: {{.Comment}}</li>
+            <li class="list-group-item"><span class="label label-{{.BootstrapClass}}">{{.Status}}</span> <i>{{.Timestamp}}</i>: {{.Comment}}</li>
             {{ end }}
         </ul>
     </div>
