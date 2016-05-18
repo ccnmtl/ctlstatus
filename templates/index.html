@@ -3,7 +3,7 @@
 
 {{ range .incidents }}
 <div class="panel panel-default">
-    <div class="panel-heading">[{{.Status}}] {{.Start}} {{.Summary}}</div>
+    <div class="panel-heading">{{.Key}}[{{.Status}}] {{.Start}} {{.Summary}}</div>
     <div class="panel-body">
         <p>{{.Description}}</p>
     </div>
