@@ -13,13 +13,26 @@
 </div>
 
 
+<h2>Recent Incidents</h2>
 {{ range .incidents }}
 <div class="panel panel-default panel-{{.BootstrapClass}}">
-    <div class="panel-heading"><a href="{{.Path}}">[{{.Status}}] {{.Start}} {{.Summary}}</a> (<b>{{.DisplayDuration}}</b>)</div>
-    <div class="panel-body">
-        <p>{{.Description}}</p>
+    <div class="panel-heading">
+        <h3>{{.StartDate}}:
+        <a href="{{.Path}}">{{.Summary}}</a>
+        <span class="pull-right label label-{{.BootstrapClass}}">{{.Status}}</span></h3>
     </div>
     <div class="panel-body">
+        <span class="pull-right"><b>{{.DisplayDuration}}</b></span>
+        <dl class="dl-horizontal">
+            <dt>Started:</dt>
+            <dd>{{.Start}}</dd>
+            {{ if eq .Status "resolved" }}
+            <dt>Ended:</dt>
+            <dd>{{.End}}</dd>
+            {{ end }}
+        </dl>
+        
+        <p>{{.Description}}</p>
     </div>
 </div>
 {{ end }}

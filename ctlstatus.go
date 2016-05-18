@@ -80,6 +80,10 @@ func (i Incident) Updates(ctx appengine.Context, k *datastore.Key) ([]Update, er
 	return updates, nil
 }
 
+func (i Incident) StartDate() string {
+	return i.Start.Format("Jan 2")
+}
+
 type Update struct {
 	Incident  *datastore.Key
 	Status    string
