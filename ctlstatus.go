@@ -24,6 +24,16 @@ func (i Incident) Path() string {
 	return "/incident/" + i.Key + "/"
 }
 
+func (i Incident) StatusOptions() []string {
+	options := map[string][]string{
+		"investigating": {"partial", "outage", "resolved"},
+		"partial":       {"outage", "resolved"},
+		"outage":        {"partial", "resolved"},
+		"resolved":      {"investigating", "partial", "outage"},
+	}
+	return options[i.Status]
+}
+
 type Update struct {
 	Key       string
 	Incident  *datastore.Key
@@ -113,6 +123,11 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 		deleteIncident(w, r)
 		return
 	}
+	if len(parts) == 4 && parts[3] == "update" {
+		updateIncident(w, r)
+		return
+	}
+
 	ikey := parts[2]
 	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
 	var incident Incident
@@ -136,6 +151,45 @@ func deleteIncident(w http.ResponseWriter, r *http.Request) {
 	ikey := parts[2]
 	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
 	err := datastore.Delete(ctx, k)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func updateIncident(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	parts := strings.Split(r.URL.String(), "/")
+	if len(parts) < 3 {
+		http.Error(w, "bad request", 404)
+		return
+	}
+	ikey := parts[2]
+	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
+	var incident Incident
+	if err := datastore.Get(ctx, k, &incident); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	start, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("start"))
+	if err != nil {
+		start = incident.Start
+	}
+
+	end, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("end"))
+	if err != nil {
+		end = incident.End
+	}
+
+	incident.Status = r.FormValue("status")
+	incident.Summary = r.FormValue("summary")
+	incident.Description = r.FormValue("description")
+	incident.Start = start
+	incident.End = end
+
+	_, err = datastore.Put(ctx, k, &incident)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
