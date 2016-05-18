@@ -20,6 +20,10 @@ type Incident struct {
 	Description string
 }
 
+func (i Incident) Path() string {
+	return "/incident/" + i.Key + "/"
+}
+
 type Update struct {
 	Key       string
 	Incident  *datastore.Key
