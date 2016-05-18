@@ -2,7 +2,7 @@
 <h1>Status</h1>
 
 {{ range .incidents }}
-<div class="panel panel-default">
+<div class="panel panel-default panel-{{.BootstrapClass}}">
     <div class="panel-heading"><a href="{{.Path}}">[{{.Status}}] {{.Start}} {{.Summary}}</a> (<b>{{.DisplayDuration}}</b>)</div>
     <div class="panel-body">
         <p>{{.Description}}</p>

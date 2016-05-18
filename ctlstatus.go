@@ -56,6 +56,16 @@ func (i Incident) DisplayDuration() string {
 	return fmt.Sprintf("%d minutes", minutes)
 }
 
+func (i Incident) BootstrapClass() string {
+	classes := map[string]string{
+		"investigating": "warning",
+		"partial":       "danger",
+		"outage":        "danger",
+		"resolved":      "success",
+	}
+	return classes[i.Status]
+}
+
 type Update struct {
 	Key       string
 	Incident  *datastore.Key

@@ -1,10 +1,14 @@
 {{define "content"}}
-<h1>Incident: {{.incident.Summary}}</h1>
+<div class="panel panel-default panel-{{.incident.BootstrapClass}}">
+    <div class="panel-heading">Incident: {{.incident.Summary}}</div>
+    <div class="panel-body">
 
 <p><b>{{.incident.DisplayDuration}}</b></p>
 
 <p>{{.incident.Status}} {{.incident.Start}}</p>
 <p>{{.incident.Description}}</p>
+    </div>
+</div>
 
 {{ if and .user .user.Admin }}
 <form action="{{.incident.Path}}update" method="post">
