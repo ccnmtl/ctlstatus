@@ -14,4 +14,9 @@ indexes:
   ancestor: yes
   properties:
   - name: Timestamp
+
+- kind: Update
+  ancestor: yes
+  properties:
+  - name: Timestamp
     direction: desc

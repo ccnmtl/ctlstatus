@@ -71,7 +71,7 @@ func (i Incident) BootstrapClass() string {
 }
 
 func (i Incident) Updates(ctx appengine.Context, k *datastore.Key) ([]Update, error) {
-	q := datastore.NewQuery("Update").Ancestor(k).Order("-Timestamp").Limit(100)
+	q := datastore.NewQuery("Update").Ancestor(k).Order("Timestamp").Limit(100)
 	updates := make([]Update, 0, 100)
 	_, err := q.GetAll(ctx, &updates)
 	if err != nil {
@@ -307,5 +307,18 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+
+	update := &Update{
+		Incident:  k,
+		Status:    incident.Status,
+		Timestamp: time.Now(),
+		Comment:   r.FormValue("update"),
+	}
+	ukey := datastore.NewIncompleteKey(ctx, "Update", k)
+	if _, err := datastore.Put(ctx, ukey, update); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	http.Redirect(w, r, incident.Path(), http.StatusFound)
 }

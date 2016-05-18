@@ -1,14 +1,15 @@
 {{define "content"}}
 <div class="panel panel-default panel-{{.incident.BootstrapClass}}">
-    <div class="panel-heading">Incident: {{.incident.Summary}}</div>
+    <div class="panel-heading"><h1>Incident: {{.incident.Summary}}</h1></div>
     <div class="panel-body">
 
         <p><span class="label label-{{.incident.BootstrapClass}}">{{.incident.Status}}</span> <b>{{.incident.DisplayDuration}}</b></p>
 
-<p>{{.incident.Status}} {{.incident.Start}}</p>
+<p>{{.incident.Start}}</p>
 <p>{{.incident.Description}}</p>
     </div>
     <div class="panel-body">
+        <h2>Timeline</h2>
         <ul class="list-group">
             {{ range .updates }}
             <li class="list-group-item"><span class="label label-{{.BootstrapClass}}">{{.Status}}</span> <i>{{.Timestamp}}</i>: {{.Comment}}</li>
@@ -51,7 +52,7 @@
         </div>
 
         <div class="form-group">
-            <label for="update">Update</label>
+            <label for="update">Update Comment</label>
             <textarea class="form-control" name="update" placeholder="update"></textarea>
         </div>
         
