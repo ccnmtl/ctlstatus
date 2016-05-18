@@ -18,5 +18,5 @@ func (u Update) BootstrapClass() string {
 }
 
 func (u Update) DisplayTimestamp() string {
-	return u.Timestamp.Format("Mon Jan 2 15:04 2006")
+	return u.Timestamp.Format("Mon Jan 2 15:04")
 }

@@ -80,9 +80,9 @@ func (i Incident) StartDate() string {
 }
 
 func (i Incident) DisplayStart() string {
-	return i.Start.Format("Mon Jan 2 15:04 2006")
+	return i.Start.Format("Mon Jan 2 15:04")
 }
 
 func (i Incident) DisplayEnd() string {
-	return i.End.Format("Mon Jan 2 15:04 2006")
+	return i.End.Format("Mon Jan 2 15:04")
 }
