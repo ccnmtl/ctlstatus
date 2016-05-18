@@ -27,6 +27,20 @@ func newKey() string {
 var indexTemplate = template.Must(template.ParseFiles("templates/base.html",
 	"templates/index.html"))
 
+func addUserToContext(ctx appengine.Context, tc map[string]interface{}, r *http.Request) map[string]interface{} {
+	u := user.Current(ctx)
+	tc["user"] = u
+	if u == nil {
+		url, _ := user.LoginURL(ctx, r.URL.String())
+		tc["signin_url"] = url
+	} else {
+		url, _ := user.LogoutURL(ctx, r.URL.String())
+		tc["signout_url"] = url
+	}
+	tc["user"] = u
+	return tc
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	q := datastore.NewQuery("Incident").Order("-End").Limit(10)
@@ -39,16 +53,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	tc := make(map[string]interface{})
 	tc["incidents"] = incidents
 	tc["current"] = currentIncident(incidents)
-	u := user.Current(ctx)
-	tc["user"] = u
-	if u == nil {
-		url, _ := user.LoginURL(ctx, r.URL.String())
-		tc["signin_url"] = url
-	} else {
-		url, _ := user.LogoutURL(ctx, r.URL.String())
-		tc["signout_url"] = url
-	}
-	tc["user"] = u
+	tc = addUserToContext(ctx, tc, r)
 	if err := indexTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -134,16 +139,7 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tc["updates"] = updates
-
-	u := user.Current(ctx)
-	if u == nil {
-		url, _ := user.LoginURL(ctx, r.URL.String())
-		tc["signin_url"] = url
-	} else {
-		url, _ := user.LogoutURL(ctx, r.URL.String())
-		tc["signout_url"] = url
-	}
-	tc["user"] = u
+	tc = addUserToContext(ctx, tc, r)
 	if err := incidentTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
