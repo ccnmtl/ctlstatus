@@ -122,7 +122,7 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, incident.Path(), http.StatusFound)
 }
 
 var incidentTemplate = template.Must(template.ParseFiles("templates/base.html",
@@ -229,5 +229,5 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	http.Redirect(w, r, "/", http.StatusFound)
+	http.Redirect(w, r, incident.Path(), http.StatusFound)
 }
