@@ -118,7 +118,11 @@ func monthlyAvailability(ctx appengine.Context) (float64, error) {
 
 func index(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
-	q := datastore.NewQuery("Incident").Order("-End").Limit(10)
+	now := time.Now()
+	begin := now.Add(-1 * time.Duration(30*24) * time.Hour)
+	q := datastore.NewQuery("Incident").
+		Filter("End >", begin).
+		Order("-End").Limit(10)
 	incidents := make([]Incident, 0, 10)
 	_, err := q.GetAll(ctx, &incidents)
 	if err != nil {
