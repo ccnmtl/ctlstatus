@@ -87,6 +87,14 @@ func outageIncidentsInRange(ctx appengine.Context, start time.Time, end time.Tim
 	return incidents, nil
 }
 
+func sumDurations(incidents []Incident) float64 {
+	sum := 0.0
+	for _, incident := range incidents {
+		sum += incident.Duration().Minutes()
+	}
+	return sum
+}
+
 func yearlyAvailability(ctx appengine.Context) (float64, error) {
 	now := time.Now()
 	year_ago := now.Add(-1 * time.Duration(365*24) * time.Hour)
@@ -96,10 +104,7 @@ func yearlyAvailability(ctx appengine.Context) (float64, error) {
 	}
 	// do the calculation in minutes
 	total := 365.0 * 24.0 * 60.0
-	sum := 0.0
-	for _, incident := range outage_incidents {
-		sum += incident.Duration().Minutes()
-	}
+	sum := sumDurations(outage_incidents)
 	return 100.0 * (total - sum) / total, nil
 }
 
@@ -112,10 +117,7 @@ func monthlyAvailability(ctx appengine.Context) (float64, error) {
 	}
 	// do the calculation in minutes
 	total := 30.0 * 24.0 * 60.0
-	sum := 0.0
-	for _, incident := range outage_incidents {
-		sum += incident.Duration().Minutes()
-	}
+	sum := sumDurations(outage_incidents)
 	return 100.0 * (total - sum) / total, nil
 }
 
@@ -148,9 +150,10 @@ func index(w http.ResponseWriter, r *http.Request) {
 }
 
 func currentIncident(incidents []Incident) *Incident {
+	// assumes that incidents come in sorted most recent first
 	now := time.Now()
 	for _, incident := range incidents {
-		if incident.End.After(now) {
+		if incident.End.After(now) || incident.Status == "outage" {
 			return &incident
 		}
 	}
