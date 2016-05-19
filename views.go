@@ -194,32 +194,37 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 	ikey := parts[2]
 	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
 	var incident Incident
-	if err := datastore.Get(ctx, k, &incident); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-	original_status := incident.Status
-	incident.Status = r.FormValue("status")
-	incident.Summary = r.FormValue("summary")
-	incident.Description = r.FormValue("description")
-
-	start, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("start"))
-	if err != nil {
-		start = incident.Start
-	}
-	incident.Start = start
-
-	end, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("end"))
-	if err != nil {
-		end = incident.End
-		if incident.Status == "resolved" && original_status != "resolved" {
-			end = time.Now()
+	err := datastore.RunInTransaction(ctx, func(ctx appengine.Context) error {
+		if err := datastore.Get(ctx, k, &incident); err != nil {
+			return err
 		}
-	}
+		original_status := incident.Status
+		incident.Status = r.FormValue("status")
+		incident.Summary = r.FormValue("summary")
+		incident.Description = r.FormValue("description")
 
-	incident.End = end
+		start, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("start"))
+		if err != nil {
+			start = incident.Start
+		}
+		incident.Start = start
 
-	_, err = datastore.Put(ctx, k, &incident)
+		end, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("end"))
+		if err != nil {
+			end = incident.End
+			if incident.Status == "resolved" && original_status != "resolved" {
+				end = time.Now()
+			}
+		}
+
+		incident.End = end
+
+		_, err = datastore.Put(ctx, k, &incident)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, nil)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
