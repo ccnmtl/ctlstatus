@@ -95,30 +95,25 @@ func sumDurations(incidents []Incident) float64 {
 	return sum
 }
 
-func yearlyAvailability(ctx appengine.Context) (float64, error) {
+func calcAvailability(ctx appengine.Context, days int) (float64, error) {
 	now := time.Now()
-	year_ago := now.Add(-1 * time.Duration(365*24) * time.Hour)
-	outage_incidents, err := outageIncidentsInRange(ctx, year_ago, now)
+	begin := now.Add(-1 * time.Duration(days*24) * time.Hour)
+	outage_incidents, err := outageIncidentsInRange(ctx, begin, now)
 	if err != nil {
 		return -1.0, err
 	}
 	// do the calculation in minutes
-	total := 365.0 * 24.0 * 60.0
+	total := float64(days) * 24.0 * 60.0
 	sum := sumDurations(outage_incidents)
 	return 100.0 * (total - sum) / total, nil
 }
 
+func yearlyAvailability(ctx appengine.Context) (float64, error) {
+	return calcAvailability(ctx, 365)
+}
+
 func monthlyAvailability(ctx appengine.Context) (float64, error) {
-	now := time.Now()
-	month_ago := now.Add(-1 * time.Duration(30*24) * time.Hour)
-	outage_incidents, err := outageIncidentsInRange(ctx, month_ago, now)
-	if err != nil {
-		return -1.0, err
-	}
-	// do the calculation in minutes
-	total := 30.0 * 24.0 * 60.0
-	sum := sumDurations(outage_incidents)
-	return 100.0 * (total - sum) / total, nil
+	return calcAvailability(ctx, 30)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
