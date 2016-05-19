@@ -80,6 +80,11 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", 405)
 		return
 	}
+	summary := r.FormValue("summary")
+	if summary == "" {
+		http.Error(w, "bad request. need summary", 400)
+		return
+	}
 	k := newKey()
 	key := datastore.NewKey(ctx, "Incident", k, 0, nil)
 	incident := &Incident{
@@ -87,7 +92,7 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 		Status:      "investigating",
 		Start:       time.Now(),
 		End:         time.Now().Add(time.Duration(24) * time.Hour),
-		Summary:     r.FormValue("summary"),
+		Summary:     summary,
 		Description: r.FormValue("description"),
 	}
 
@@ -206,6 +211,11 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", 404)
 		return
 	}
+	summary := r.FormValue("summary")
+	if summary == "" {
+		http.Error(w, "bad request. need summary", 400)
+		return
+	}
 	ikey := parts[2]
 	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
 	var incident Incident
@@ -215,7 +225,7 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		}
 		original_status := incident.Status
 		incident.Status = r.FormValue("status")
-		incident.Summary = r.FormValue("summary")
+		incident.Summary = summary
 		incident.Description = r.FormValue("description")
 
 		start, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("start"))
