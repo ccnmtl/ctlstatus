@@ -23,10 +23,9 @@ func (i Incident) Path() string {
 
 func (i Incident) StatusOptions() []string {
 	options := map[string][]string{
-		"investigating": {"partial", "outage", "resolved"},
-		"partial":       {"outage", "resolved"},
-		"outage":        {"partial", "resolved"},
-		"resolved":      {"investigating", "partial", "outage"},
+		"investigating": {"outage", "resolved"},
+		"outage":        {"resolved"},
+		"resolved":      {"investigating", "outage"},
 	}
 	return options[i.Status]
 }
@@ -54,7 +53,6 @@ func (i Incident) DisplayDuration() string {
 func BootstrapClassFromStatus(s string) string {
 	classes := map[string]string{
 		"investigating": "warning",
-		"partial":       "danger",
 		"outage":        "danger",
 		"resolved":      "success",
 	}
