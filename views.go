@@ -167,11 +167,26 @@ func deleteIncident(w http.ResponseWriter, r *http.Request) {
 	}
 	ikey := parts[2]
 	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
-	err := datastore.Delete(ctx, k)
+
+	q := datastore.NewQuery("Update").Ancestor(k).Order("Timestamp").Limit(100)
+	updates := make([]Update, 0, 100)
+	ukeys, err := q.GetAll(ctx, &updates)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	err = datastore.DeleteMulti(ctx, ukeys)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	err = datastore.Delete(ctx, k)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	http.Redirect(w, r, "/", http.StatusFound)
 }
 
