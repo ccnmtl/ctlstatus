@@ -30,7 +30,8 @@
     </div>
 </div>
 
-{{ if and .user .user.Admin }}
+{{ if .user }}
+{{ if .user.Admin }}
 <form action="{{.incident.Path}}update" method="post">
     <fieldset><legend>Update</legend>
         <div class="form-group">
@@ -80,6 +81,6 @@
         <input type="submit" class="btn btn-danger" value="delete"/>
     </fieldset>
 </form>
-
 {{ end }}
-{{end}}
+{{ end }}
+{{ end }}

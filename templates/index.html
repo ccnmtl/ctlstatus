@@ -37,7 +37,8 @@
 </div>
 {{ end }}
 
-{{ if and .user .user.Admin }}
+{{ if .user }}
+{{ if .user.Admin }}
 <h2>New Incident</h2>
 <form action="/incident/new" method="post" class="form">
     <div class="form-group">
@@ -50,5 +51,6 @@
     </div>
     <input type="submit" value="new incident" class="btn btn-primary"/>
 </form>
+{{ end }}
 {{ end }}
 {{end}}
