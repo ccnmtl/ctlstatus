@@ -76,6 +76,10 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "you must be logged in as an admin", http.StatusForbidden)
 		return
 	}
+	if r.Method != "POST" {
+		http.Error(w, "bad request", 405)
+		return
+	}
 	k := newKey()
 	key := datastore.NewKey(ctx, "Incident", k, 0, nil)
 	incident := &Incident{
@@ -152,6 +156,10 @@ func deleteIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "you must be logged in as an admin", http.StatusForbidden)
 		return
 	}
+	if r.Method != "POST" {
+		http.Error(w, "bad request", 405)
+		return
+	}
 	parts := strings.Split(r.URL.String(), "/")
 	if len(parts) < 3 {
 		http.Error(w, "bad request", 404)
@@ -172,6 +180,10 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 	u := user.Current(ctx)
 	if u == nil || !u.Admin {
 		http.Error(w, "you must be logged in as an admin", http.StatusForbidden)
+		return
+	}
+	if r.Method != "POST" {
+		http.Error(w, "bad request", 405)
 		return
 	}
 	parts := strings.Split(r.URL.String(), "/")
