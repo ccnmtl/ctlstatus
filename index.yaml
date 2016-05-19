@@ -11,6 +11,16 @@ indexes:
 # your application using appcfg.py.
 
 - kind: Update
+  properties:
+  - name: Status
+  - name: Timestamp
+
+- kind: Update
+  properties:
+  - name: status
+  - name: timestamp
+
+- kind: Update
   ancestor: yes
   properties:
   - name: Timestamp

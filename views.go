@@ -41,6 +41,84 @@ func addUserToContext(ctx appengine.Context, tc map[string]interface{}, r *http.
 	return tc
 }
 
+func outageUpdatesInRange(ctx appengine.Context, start time.Time, end time.Time) ([]Update, error) {
+	q := datastore.NewQuery("Update").
+		Filter("Status =", "outage").
+		Filter("Timestamp >", start).
+		Filter("Timestamp <", end)
+	updates := make([]Update, 0, 1)
+	_, err := q.GetAll(ctx, &updates)
+	if err != nil {
+		return []Update{}, err
+	}
+	return updates, nil
+}
+
+func uniqIncidentKeys(updates []Update) []*datastore.Key {
+	seen := make(map[*datastore.Key]bool)
+	for _, update := range updates {
+		seen[update.Incident] = true
+	}
+	var keys []*datastore.Key
+	for k := range seen {
+		keys = append(keys, k)
+	}
+	return keys
+}
+
+func uniqIncidents(ctx appengine.Context, updates []Update) ([]Incident, error) {
+	ikeys := uniqIncidentKeys(updates)
+	incidents := make([]Incident, len(ikeys), len(ikeys))
+	if err := datastore.GetMulti(ctx, ikeys, incidents); err != nil {
+		return []Incident{}, err
+	}
+	return incidents, nil
+}
+
+func outageIncidentsInRange(ctx appengine.Context, start time.Time, end time.Time) ([]Incident, error) {
+	updates, err := outageUpdatesInRange(ctx, start, end)
+	if err != nil {
+		return []Incident{}, err
+	}
+	incidents, err := uniqIncidents(ctx, updates)
+	if err != nil {
+		return []Incident{}, err
+	}
+	return incidents, nil
+}
+
+func yearlyAvailability(ctx appengine.Context) (float64, error) {
+	now := time.Now()
+	year_ago := now.Add(-1 * time.Duration(365*24) * time.Hour)
+	outage_incidents, err := outageIncidentsInRange(ctx, year_ago, now)
+	if err != nil {
+		return -1.0, err
+	}
+	// do the calculation in minutes
+	total := 365.0 * 24.0 * 60.0
+	sum := 0.0
+	for _, incident := range outage_incidents {
+		sum += incident.Duration().Minutes()
+	}
+	return 100.0 * (total - sum) / total, nil
+}
+
+func monthlyAvailability(ctx appengine.Context) (float64, error) {
+	now := time.Now()
+	month_ago := now.Add(-1 * time.Duration(30*24) * time.Hour)
+	outage_incidents, err := outageIncidentsInRange(ctx, month_ago, now)
+	if err != nil {
+		return -1.0, err
+	}
+	// do the calculation in minutes
+	total := 30.0 * 24.0 * 60.0
+	sum := 0.0
+	for _, incident := range outage_incidents {
+		sum += incident.Duration().Minutes()
+	}
+	return 100.0 * (total - sum) / total, nil
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	q := datastore.NewQuery("Incident").Order("-End").Limit(10)
@@ -53,6 +131,16 @@ func index(w http.ResponseWriter, r *http.Request) {
 	tc := make(map[string]interface{})
 	tc["incidents"] = incidents
 	tc["current"] = currentIncident(incidents)
+	yearly_availability, err := yearlyAvailability(ctx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	tc["yearly_availability"] = yearly_availability
+	monthly_availability, err := monthlyAvailability(ctx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	tc["monthly_availability"] = monthly_availability
 	tc = addUserToContext(ctx, tc, r)
 	if err := indexTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
