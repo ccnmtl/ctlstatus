@@ -89,7 +89,7 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 	key := datastore.NewKey(ctx, "Incident", k, 0, nil)
 	incident := &Incident{
 		Key:         k,
-		Status:      "investigating",
+		Status:      r.FormValue("status"),
 		Start:       time.Now(),
 		End:         time.Now().Add(time.Duration(24) * time.Hour),
 		Summary:     summary,

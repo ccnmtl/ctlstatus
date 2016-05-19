@@ -46,6 +46,13 @@
         <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
     </div>
     <div class="form-group">
+        <label for="status">Status</label>
+        <select name="status" class="form-control" name="status" id="status">
+            <option value="investigating" selected>investigating</option>
+            <option value="outage">confirmed outage</option>
+        </select>
+    </div>
+    <div class="form-group">
         <label for="description">Description</label>
         <textarea class="form-control" name="description" placeholder="Description of Incident"></textarea>
     </div>
