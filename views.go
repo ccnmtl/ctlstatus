@@ -178,7 +178,7 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 	k := newKey()
 	key := datastore.NewKey(ctx, "Incident", k, 0, nil)
 	incident := &Incident{
-		Key:         k,
+		Key:         key,
 		Status:      r.FormValue("status"),
 		Start:       time.Now(),
 		End:         time.Now().Add(time.Duration(24) * time.Hour),
@@ -224,7 +224,11 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 	}
 
 	ikey := parts[2]
-	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
+	k, err := datastore.DecodeKey(ikey)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	var incident Incident
 	if err := datastore.Get(ctx, k, &incident); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -262,7 +266,11 @@ func deleteIncident(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ikey := parts[2]
-	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
+	k, err := datastore.DecodeKey(ikey)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 
 	q := datastore.NewQuery("Update").Ancestor(k).Order("Timestamp").Limit(100)
 	updates := make([]Update, 0, 100)
@@ -308,9 +316,13 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	ikey := parts[2]
-	k := datastore.NewKey(ctx, "Incident", ikey, 0, nil)
+	k, err := datastore.DecodeKey(ikey)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
 	var incident Incident
-	err := datastore.RunInTransaction(ctx, func(ctx appengine.Context) error {
+	err = datastore.RunInTransaction(ctx, func(ctx appengine.Context) error {
 		if err := datastore.Get(ctx, k, &incident); err != nil {
 			return err
 		}

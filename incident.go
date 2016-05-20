@@ -9,7 +9,7 @@ import (
 )
 
 type Incident struct {
-	Key         string
+	Key         *datastore.Key
 	Status      string
 	Start       time.Time
 	End         time.Time
@@ -18,7 +18,7 @@ type Incident struct {
 }
 
 func (i Incident) Path() string {
-	return "/incident/" + i.Key + "/"
+	return "/incident/" + i.Key.Encode() + "/"
 }
 
 func (i Incident) StatusOptions() []string {
