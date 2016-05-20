@@ -228,6 +228,7 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 	var incident Incident
 	if err := datastore.Get(ctx, k, &incident); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 	tc := make(map[string]interface{})
 	tc["incident"] = incident
