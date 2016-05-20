@@ -14,14 +14,15 @@ import (
 
 const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz"
 
-func newKey() string {
-	var N = 10
-	r := make([]byte, N)
-	var i = 0
-	for i = 0; i < N; i++ {
-		r[i] = chars[rand.Intn(len(chars))]
-	}
-	return string(r)
+func newKey() int64 {
+	//	var N = 10
+	//	r := make([]byte, N)
+	//	var i = 0
+	//	for i = 0; i < N; i++ {
+	//		r[i] = chars[rand.Intn(len(chars))]
+	//	}
+	//	return string(r)
+	return rand.Int63()
 }
 
 var indexTemplate = template.Must(template.ParseFiles("templates/base.html",
@@ -176,7 +177,7 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	k := newKey()
-	key := datastore.NewKey(ctx, "Incident", k, 0, nil)
+	key := datastore.NewKey(ctx, "Incident", "", k, nil)
 	incident := &Incident{
 		Key:         key,
 		Status:      r.FormValue("status"),
