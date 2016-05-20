@@ -313,6 +313,7 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	status_changed := false
 	k := datastore.NewKey(ctx, "Incident", "", int64(ikey), nil)
 	var incident Incident
 	err = datastore.RunInTransaction(ctx, func(ctx appengine.Context) error {
@@ -324,6 +325,10 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		incident.Status = r.FormValue("status")
 		incident.Summary = summary
 		incident.Description = r.FormValue("description")
+
+		if incident.Status != original_status {
+			status_changed = true
+		}
 
 		start, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("start"))
 		if err != nil {
@@ -352,17 +357,18 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	update := &Update{
-		Incident:  k,
-		Status:    incident.Status,
-		Timestamp: time.Now(),
-		Comment:   r.FormValue("update"),
+	if status_changed || r.FormValue("update") != "" {
+		update := &Update{
+			Incident:  k,
+			Status:    incident.Status,
+			Timestamp: time.Now(),
+			Comment:   r.FormValue("update"),
+		}
+		ukey := datastore.NewIncompleteKey(ctx, "Update", k)
+		if _, err := datastore.Put(ctx, ukey, update); err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 	}
-	ukey := datastore.NewIncompleteKey(ctx, "Update", k)
-	if _, err := datastore.Put(ctx, ukey, update); err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
 	http.Redirect(w, r, incident.Path(), http.StatusFound)
 }
