@@ -2,6 +2,7 @@ package ctlstatus
 
 import (
 	"fmt"
+	"strconv"
 	"time"
 
 	"appengine"
@@ -9,7 +10,7 @@ import (
 )
 
 type Incident struct {
-	Key         *datastore.Key
+	Id          int64
 	Status      string
 	Start       time.Time
 	End         time.Time
@@ -18,7 +19,7 @@ type Incident struct {
 }
 
 func (i Incident) Path() string {
-	return "/incident/" + i.Key.Encode() + "/"
+	return "/incident/" + strconv.FormatInt(i.Id, 10) + "/"
 }
 
 func (i Incident) StatusOptions() []string {

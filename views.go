@@ -1,8 +1,8 @@
 package ctlstatus
 
 import (
-	"math/rand"
 	"net/http"
+	"strconv"
 	"strings"
 	"text/template"
 	"time"
@@ -11,19 +11,6 @@ import (
 	"appengine/datastore"
 	"appengine/user"
 )
-
-const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890abcdefghijklmnopqrstuvwxyz"
-
-func newKey() int64 {
-	//	var N = 10
-	//	r := make([]byte, N)
-	//	var i = 0
-	//	for i = 0; i < N; i++ {
-	//		r[i] = chars[rand.Intn(len(chars))]
-	//	}
-	//	return string(r)
-	return rand.Int63()
-}
 
 var indexTemplate = template.Must(template.ParseFiles("templates/base.html",
 	"templates/index.html"))
@@ -125,10 +112,13 @@ func index(w http.ResponseWriter, r *http.Request) {
 		Filter("End >", begin).
 		Order("-End").Limit(10)
 	incidents := make([]Incident, 0, 10)
-	_, err := q.GetAll(ctx, &incidents)
+	keys, err := q.GetAll(ctx, &incidents)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
+	}
+	for i := 0; i < len(incidents); i++ {
+		incidents[i].Id = keys[i].IntID()
 	}
 	tc := make(map[string]interface{})
 	tc["incidents"] = incidents
@@ -176,10 +166,8 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request. need summary", 400)
 		return
 	}
-	k := newKey()
-	key := datastore.NewKey(ctx, "Incident", "", k, nil)
+	key := datastore.NewIncompleteKey(ctx, "Incident", nil)
 	incident := &Incident{
-		Key:         key,
 		Status:      r.FormValue("status"),
 		Start:       time.Now(),
 		End:         time.Now().Add(time.Duration(24) * time.Hour),
@@ -187,21 +175,25 @@ func newIncident(w http.ResponseWriter, r *http.Request) {
 		Description: r.FormValue("description"),
 	}
 
-	if _, err := datastore.Put(ctx, key, incident); err != nil {
+	nkey, err := datastore.Put(ctx, key, incident)
+	if err != nil {
+		ctx.Errorf("put failed")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	update := &Update{
-		Incident:  key,
+		Incident:  nkey,
 		Status:    incident.Status,
 		Timestamp: time.Now(),
 		Comment:   "New Incident entered",
 	}
-	ukey := datastore.NewIncompleteKey(ctx, "Update", key)
+	ukey := datastore.NewIncompleteKey(ctx, "Update", nkey)
 	if _, err := datastore.Put(ctx, ukey, update); err != nil {
+		ctx.Errorf("update put failed")
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	incident.Id = nkey.IntID()
 	http.Redirect(w, r, incident.Path(), http.StatusFound)
 }
 
@@ -210,7 +202,7 @@ var incidentTemplate = template.Must(template.ParseFiles("templates/base.html",
 
 func showIncident(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
-	parts := strings.Split(r.URL.String(), "/")
+	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) < 3 {
 		http.Error(w, "bad request", 404)
 		return
@@ -224,17 +216,18 @@ func showIncident(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ikey := parts[2]
-	k, err := datastore.DecodeKey(ikey)
+	ikey, err := strconv.ParseInt(parts[2], 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	k := datastore.NewKey(ctx, "Incident", "", int64(ikey), nil)
 	var incident Incident
 	if err := datastore.Get(ctx, k, &incident); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	incident.Id = ikey
 	tc := make(map[string]interface{})
 	tc["incident"] = incident
 
@@ -261,18 +254,17 @@ func deleteIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", 405)
 		return
 	}
-	parts := strings.Split(r.URL.String(), "/")
+	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) < 3 {
 		http.Error(w, "bad request", 404)
 		return
 	}
-	ikey := parts[2]
-	k, err := datastore.DecodeKey(ikey)
+	ikey, err := strconv.ParseInt(parts[2], 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-
+	k := datastore.NewKey(ctx, "Incident", "", int64(ikey), nil)
 	q := datastore.NewQuery("Update").Ancestor(k).Order("Timestamp").Limit(100)
 	updates := make([]Update, 0, 100)
 	ukeys, err := q.GetAll(ctx, &updates)
@@ -306,7 +298,7 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request", 405)
 		return
 	}
-	parts := strings.Split(r.URL.String(), "/")
+	parts := strings.Split(r.URL.Path, "/")
 	if len(parts) < 3 {
 		http.Error(w, "bad request", 404)
 		return
@@ -316,17 +308,18 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "bad request. need summary", 400)
 		return
 	}
-	ikey := parts[2]
-	k, err := datastore.DecodeKey(ikey)
+	ikey, err := strconv.ParseInt(parts[2], 10, 64)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	k := datastore.NewKey(ctx, "Incident", "", int64(ikey), nil)
 	var incident Incident
 	err = datastore.RunInTransaction(ctx, func(ctx appengine.Context) error {
 		if err := datastore.Get(ctx, k, &incident); err != nil {
 			return err
 		}
+		incident.Id = k.IntID()
 		original_status := incident.Status
 		incident.Status = r.FormValue("status")
 		incident.Summary = summary
