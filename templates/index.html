@@ -44,6 +44,7 @@
     </div>
 </div>
 
+{{ if .incidents }}
 <h2>Recent Incidents</h2>
 {{ range .incidents }}
 <div class="panel panel-default panel-{{.BootstrapClass}}">
@@ -66,6 +67,9 @@
         <p>{{.Description}}</p>
     </div>
 </div>
+{{ end }}
+{{ else }}
+<p>No Recent Incidents</p>
 {{ end }}
 
 {{ if .user }}
