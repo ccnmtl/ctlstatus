@@ -104,6 +104,10 @@ func monthlyAvailability(ctx appengine.Context) (float64, error) {
 	return calcAvailability(ctx, 30)
 }
 
+func weeklyAvailability(ctx appengine.Context) (float64, error) {
+	return calcAvailability(ctx, 7)
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	now := time.Now()
@@ -133,6 +137,11 @@ func index(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 	tc["monthly_availability"] = monthly_availability
+	weekly_availability, err := weeklyAvailability(ctx)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	tc["weekly_availability"] = weekly_availability
 	tc = addUserToContext(ctx, tc, r)
 	if err := indexTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
