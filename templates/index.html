@@ -11,13 +11,38 @@
     </div>
 {{ end }}
 </div>
-<h2>Availability Stats</h2>
-<dl class="dl-horizontal">
-    <dt>Yearly:</dt>
-    <dd>{{printf "%.04f" .yearly_availability}}%</dd>
-    <dt>Monthly:</dt>
-    <dd>{{printf "%.04f" .monthly_availability}}%</dd>
-</dl>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Availability Stats
+            </div>
+            <div class="panel-body">
+                <dl class="dl-horizontal">
+                    <dt>Yearly:</dt>
+                    <dd>{{printf "%.04f" .yearly_availability}}%</dd>
+                    <dt>Monthly:</dt>
+                    <dd>{{printf "%.04f" .monthly_availability}}%</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">Elsewhere</div>
+            <div class="panel-body">
+                <p>Other related status pages</p>
+                <ul class="list-group">
+                    <li class="list-group-item"><a href="http://cuitalerts.columbia.edu/">CUIT Alerts</a></li>
+                    <li class="list-group-item"><a href="https://status.linode.com/">Linode</a></li>
+                    <li class="list-group-item"><a href="http://status.aws.amazon.com/">AWS</a></li>
+                    <li class="list-group-item"><a href="https://status.github.com/">Github</a></li>            
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
 
 <h2>Recent Incidents</h2>
 {{ range .incidents }}
