@@ -3,7 +3,7 @@ package ctlstatus
 import "time"
 
 type MaintenanceWindow struct {
-	Key         string
+	Id          int64
 	Summary     string
 	Start       time.Time
 	End         time.Time
