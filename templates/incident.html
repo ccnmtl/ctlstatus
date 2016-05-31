@@ -56,13 +56,13 @@
 
         <div class="form-group">
             <label for="start">Start Time</label>
-            <input type="text" name="start" value="{{.incident.Start}}" id="start" class="form-control"/>
+            <input type="text" name="start" value="{{.incident.EditStart}}" id="start" class="form-control"/>
         </div>
 
 {{ if eq .incident.Status "resolved" }}        
         <div class="form-group">
             <label for="end">End Time</label>
-            <input type="text" name="end" value="{{.incident.End}}" id="end" class="form-control"/>
+            <input type="text" name="end" value="{{.incident.EditEnd}}" id="end" class="form-control"/>
         </div>
 {{ end }}
         

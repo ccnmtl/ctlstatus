@@ -88,3 +88,11 @@ func (i Incident) DisplayStart() string {
 func (i Incident) DisplayEnd() string {
 	return i.End.Format("Mon Jan 2 15:04")
 }
+
+func (i Incident) EditStart() string {
+	return i.Start.Format("2006-01-02 15:04 -0700 MST")
+}
+
+func (i Incident) EditEnd() string {
+	return i.End.Format("2006-01-02 15:04 -0700 MST")
+}

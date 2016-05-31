@@ -424,13 +424,13 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 			status_changed = true
 		}
 
-		start, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("start"))
+		start, err := time.Parse("2006-01-02 15:04 -0700 MST", r.FormValue("start"))
 		if err != nil {
 			start = incident.Start
 		}
 		incident.Start = start
 
-		end, err := time.Parse("2006-01-02 15:04:05.999999999 -0700 MST", r.FormValue("end"))
+		end, err := time.Parse("2006-01-02 15:04 -0700 MST", r.FormValue("end"))
 		if err != nil {
 			end = incident.End
 			if incident.Status == "resolved" && original_status != "resolved" {
