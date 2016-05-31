@@ -124,8 +124,24 @@ func index(w http.ResponseWriter, r *http.Request) {
 	for i := 0; i < len(incidents); i++ {
 		incidents[i].Id = keys[i].IntID()
 	}
+
+	// upcoming maintenance windows
+	q = datastore.NewQuery("MaintenanceWindow").
+		Filter("Start >", now).
+		Order("Start").Limit(10)
+	upcomingMaintenanceWindows := make([]MaintenanceWindow, 0, 10)
+	keys, err = q.GetAll(ctx, &upcomingMaintenanceWindows)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	for i := 0; i < len(upcomingMaintenanceWindows); i++ {
+		upcomingMaintenanceWindows[i].Id = keys[i].IntID()
+	}
+
 	tc := make(map[string]interface{})
 	tc["incidents"] = incidents
+	tc["upcoming_maintenance_windows"] = upcomingMaintenanceWindows
 	tc["current"] = currentIncident(incidents)
 	yearly_availability, err := yearlyAvailability(ctx)
 	if err != nil {

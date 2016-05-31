@@ -13,7 +13,23 @@
 </div>
 
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Upcoming Maintenance Windows
+            </div>
+            {{ if .upcoming_maintenance_windows }}
+            <ul class="list-group">
+                {{ range .upcoming_maintenance_windows }}
+                <li class="list-group-item"><b>{{.Summary}}</b> {{.DisplayStart}} {{.DisplayDuration}}</li>
+                {{ end }}
+            </ul>
+            {{ else }}
+            <div class="panel-body"><p>No upcoming Maintenance Windows</p></div>
+            {{ end }}
+        </div>
+    </div>
+    <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">
                 Availability Stats
@@ -30,7 +46,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-4">
         <div class="panel panel-default">
             <div class="panel-heading">Elsewhere</div>
             <div class="panel-body">
