@@ -54,6 +54,101 @@
     
 </div>
 
+{{ if .user }}
+{{ if .user.Admin }}
+
+<hr />
+
+<div class="btn-group" role="group">
+    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newIncidentModal">
+        New Incident
+    </button>
+
+    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newMaintModal">
+        Schedule Maintenance Window
+    </button>
+</div>
+
+<hr />
+
+<form action="/incident/new" method="post" class="form">
+    <div class="modal fade" id="newIncidentModal" tabindex="-1" role="dialog" aria-labelledby="newIncidentModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="newIncidentModalLabel">New Incident</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="summary">Summary</label>
+                        <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="status">Status</label>
+                        <select name="status" class="form-control" name="status" id="status">
+                            <option value="investigating" selected>investigating</option>
+                            <option value="outage">confirmed outage</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" name="description" placeholder="Description of Incident"></textarea>
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" value="new incident" class="btn btn-primary"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+
+<form action="/maintenance/new" method="post" class="form">
+
+    <div class="modal fade" id="newMaintModal" tabindex="-1" role="dialog" aria-labelledby="newMaintModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title" id="newMaintModalLabel">New Maintenance Window</h4>
+                </div>
+                <div class="modal-body">
+
+                    <div class="form-group">
+                        <label for="summary">Summary</label>
+                        <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="start-m">Start Time</label>
+                        <input type="text" name="start" value="{{.now}}" id="start-m" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="end-m">End Time</label>
+                        <input type="text" name="end" value="{{.now}}" id="end-m" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Description</label>
+                        <textarea class="form-control" name="description" placeholder="Description of Maintenance Window"></textarea>
+                    </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <input type="submit" value="new maintenance window" class="btn btn-primary"/>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{{ end }}
+{{ end }}
+
 <div class="row">
     <div class="col-md-6">
         <div class="panel panel-default">
@@ -151,49 +246,5 @@
     
 </div>
 
-{{ if .user }}
-{{ if .user.Admin }}
-<h2>New Incident</h2>
-<form action="/incident/new" method="post" class="form">
-    <div class="form-group">
-        <label for="summary">Summary</label>
-        <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
-    </div>
-    <div class="form-group">
-        <label for="status">Status</label>
-        <select name="status" class="form-control" name="status" id="status">
-            <option value="investigating" selected>investigating</option>
-            <option value="outage">confirmed outage</option>
-        </select>
-    </div>
-    <div class="form-group">
-        <label for="description">Description</label>
-        <textarea class="form-control" name="description" placeholder="Description of Incident"></textarea>
-    </div>
-    <input type="submit" value="new incident" class="btn btn-primary"/>
-</form>
-
-<h2>Add Maintenance Window</h2>
-<form action="/maintenance/new" method="post" class="form">
-    <div class="form-group">
-        <label for="summary">Summary</label>
-        <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
-    </div>
-    <div class="form-group">
-        <label for="start-m">Start Time</label>
-        <input type="text" name="start" value="{{.now}}" id="start-m" class="form-control"/>
-    </div>
-    <div class="form-group">
-        <label for="end-m">End Time</label>
-        <input type="text" name="end" value="{{.now}}" id="end-m" class="form-control"/>
-    </div>
-    <div class="form-group">
-        <label for="description">Description</label>
-        <textarea class="form-control" name="description" placeholder="Description of Maintenance Window"></textarea>
-    </div>
-    <input type="submit" value="new maintenance window" class="btn btn-primary"/>
-</form>
-{{ end }}
-{{ end }}
 
 {{end}}
