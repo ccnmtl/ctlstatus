@@ -227,6 +227,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 	tc["weekly_availability"] = weekly_availability
 	tc = addUserToContext(ctx, tc, r)
+	tc["now"] = now.Format("2006-01-02 15:04 -0700 MST")
 	if err := indexTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
@@ -483,13 +484,13 @@ func newMaintenanceWindow(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	start, err := time.Parse("2006-01-02 15:04:05", r.FormValue("start"))
+	start, err := time.Parse("2006-01-02 15:04 -0700 MST", r.FormValue("start"))
 	if err != nil {
 		http.Error(w, "bad start time "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	end, err := time.Parse("2006-01-02 15:04:05", r.FormValue("end"))
+	end, err := time.Parse("2006-01-02 15:04 -0700 MST", r.FormValue("end"))
 	if err != nil {
 		http.Error(w, "bad start time "+err.Error(), http.StatusInternalServerError)
 		return
@@ -621,13 +622,13 @@ func updateMaintenanceWindow(w http.ResponseWriter, r *http.Request) {
 		maintenanceWindow.Summary = summary
 		maintenanceWindow.Description = r.FormValue("description")
 
-		start, err := time.Parse("2006-01-02 15:04:05 -0700 MST", r.FormValue("start"))
+		start, err := time.Parse("2006-01-02 15:04 -0700 MST", r.FormValue("start"))
 		if err != nil {
 			start = maintenanceWindow.Start
 		}
 		maintenanceWindow.Start = start
 
-		end, err := time.Parse("2006-01-02 15:04:05 -0700 MST", r.FormValue("end"))
+		end, err := time.Parse("2006-01-02 15:04 -0700 MST", r.FormValue("end"))
 		if err != nil {
 			end = maintenanceWindow.End
 		}

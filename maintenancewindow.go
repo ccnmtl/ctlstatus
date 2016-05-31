@@ -61,3 +61,11 @@ func (i MaintenanceWindow) DisplayStart() string {
 func (i MaintenanceWindow) DisplayEnd() string {
 	return i.End.Format("Mon Jan 2 15:04")
 }
+
+func (i MaintenanceWindow) EditStart() string {
+	return i.Start.Format("2006-01-02 15:04 -0700 MST")
+}
+
+func (i MaintenanceWindow) EditEnd() string {
+	return i.End.Format("2006-01-02 15:04 -0700 MST")
+}
