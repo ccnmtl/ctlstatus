@@ -155,6 +155,28 @@ func recentMaintenanceWindows(ctx appengine.Context, now, begin time.Time) ([]Ma
 	return maintenanceWindows, nil
 }
 
+func ongoingMaintenanceWindows(ctx appengine.Context, now time.Time) ([]MaintenanceWindow, error) {
+	q := datastore.NewQuery("MaintenanceWindow").
+		Filter("End >", now).
+		Order("End").Limit(10)
+
+	maintenanceWindows := make([]MaintenanceWindow, 0, 10)
+	keys, err := q.GetAll(ctx, &maintenanceWindows)
+	if err != nil {
+		return []MaintenanceWindow{}, err
+	}
+	var ongoing = []MaintenanceWindow{}
+	for i := 0; i < len(maintenanceWindows); i++ {
+		m := maintenanceWindows[i]
+		if m.Status() == "ongoing" {
+			m.Id = keys[i].IntID()
+			ongoing = append(ongoing, m)
+		}
+	}
+
+	return ongoing, nil
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	now := time.Now()
@@ -177,10 +199,17 @@ func index(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ongoingMaintenanceWindows, err := ongoingMaintenanceWindows(ctx, now)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	tc := make(map[string]interface{})
 	tc["incidents"] = incidents
 	tc["maintenance_windows"] = maintenanceWindows
 	tc["upcoming_maintenance_windows"] = upcomingMaintenanceWindows
+	tc["ongoing_maintenance_windows"] = ongoingMaintenanceWindows
 	tc["current"] = currentIncident(incidents)
 	yearly_availability, err := yearlyAvailability(ctx)
 	if err != nil {

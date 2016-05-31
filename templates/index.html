@@ -1,19 +1,40 @@
 {{define "content"}}
 
-<div class="jumbotron">
-{{ if .current }}
-    <div class="alert alert-{{.current.BootstrapClass}}"><h1>{{.current.Status}}</h1>
-        <p><a href="{{.current.Path}}">{{.current.Summary}}</a></p>
+<div class="row jumbotron">
+    <div class="col-md-6">
+        {{ if .current }}
+        <div class="alert alert-{{.current.BootstrapClass}}"><h1>{{.current.Status}}</h1>
+            <p><a href="{{.current.Path}}">{{.current.Summary}}</a></p>
+        </div>
+        {{ else }}
+        {{ if .ongoing_maintenance_windows }}
+        <div class="alert alert-warning"><h1>Maintenance</h1>
+            <p>In a scheduled maintenance window</p>
+        </div>
+        {{ else }}
+        <div class="alert alert-success"><h1>OK</h1>
+            <p>No known issues at this time</p>
+        </div>
+        {{ end }}
+        {{ end }}
     </div>
-{{ else }}
-    <div class="alert alert-success"><h1>OK</h1>
-        <p>No known issues at this time</p>
-    </div>
-{{ end }}
-</div>
 
-<div class="row">
-    <div class="col-md-4">
+    <div class="col-md-6">
+        {{ if .ongoing_maintenance_windows }}
+        <h2>Ongoing Maintenance Windows</h2>
+            {{ range .ongoing_maintenance_windows }}
+            <div class="alert alert-{{.BootstrapClass}}">
+                <h2><a href="{{.Path}}">{{.Summary}}</a></h2>
+                <p>{{.DisplayStart}} - {{.DisplayEnd}}</p>
+                <p>{{.Description}}</p>
+            </div>
+            {{ end }}
+        {{ else }}
+        <div class="alert alert-success">
+            <p>Not in a Maintenance Window</p>
+        </div>
+        {{ end }}
+
         <div class="panel panel-default">
             <div class="panel-heading">
                 Upcoming Maintenance Windows
@@ -28,8 +49,13 @@
             <div class="panel-body"><p>No upcoming Maintenance Windows</p></div>
             {{ end }}
         </div>
+        
     </div>
-    <div class="col-md-4">
+    
+</div>
+
+<div class="row">
+    <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">
                 Availability Stats
@@ -46,7 +72,7 @@
             </div>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-6">
         <div class="panel panel-default">
             <div class="panel-heading">Elsewhere</div>
             <div class="panel-body">
