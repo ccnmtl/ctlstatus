@@ -123,24 +123,32 @@ func upcomingMaintenanceWindows(ctx appengine.Context, now time.Time) ([]Mainten
 	return upcomingMaintenanceWindows, nil
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
-	ctx := appengine.NewContext(r)
-	now := time.Now()
-	begin := now.Add(-1 * time.Duration(30*24) * time.Hour)
+func recentIncidents(ctx appengine.Context, now, begin time.Time) ([]Incident, error) {
 	q := datastore.NewQuery("Incident").
 		Filter("End >", begin).
 		Order("-End").Limit(10)
 	incidents := make([]Incident, 0, 10)
 	keys, err := q.GetAll(ctx, &incidents)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		return []Incident{}, err
 	}
 	for i := 0; i < len(incidents); i++ {
 		incidents[i].Id = keys[i].IntID()
 	}
+	return incidents, nil
+}
 
-	// upcoming maintenance windows
+func index(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	now := time.Now()
+	begin := now.Add(-1 * time.Duration(30*24) * time.Hour)
+
+	incidents, err := recentIncidents(ctx, now, begin)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
 	upcomingMaintenanceWindows, err := upcomingMaintenanceWindows(ctx, now)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
