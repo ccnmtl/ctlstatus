@@ -21,7 +21,7 @@
             {{ if .upcoming_maintenance_windows }}
             <ul class="list-group">
                 {{ range .upcoming_maintenance_windows }}
-                <li class="list-group-item list-group-item-{{.BootstrapClass}}"><b>{{.Summary}}</b> {{.DisplayStart}} {{.DisplayDuration}}</li>
+                <li class="list-group-item list-group-item-{{.BootstrapClass}}"><a href="{{.Path}}"><b>{{.Summary}}</b> {{.DisplayStart}} {{.DisplayDuration}}</a></li>
                 {{ end }}
             </ul>
             {{ else }}

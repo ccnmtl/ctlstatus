@@ -15,7 +15,7 @@ type MaintenanceWindow struct {
 }
 
 func (i MaintenanceWindow) Path() string {
-	return "/maintenancewindow/" + strconv.FormatInt(i.Id, 10) + "/"
+	return "/maintenance/" + strconv.FormatInt(i.Id, 10) + "/"
 }
 
 // if it's resolved, total time between start + end

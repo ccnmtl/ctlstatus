@@ -1,0 +1,57 @@
+{{define "content"}}
+<div class="panel panel-default panel-{{.maintenance_window.BootstrapClass}}">
+    <div class="panel-heading">
+        <h1>{{.maintenance_window.StartDate}}:
+            {{.maintenance_window.Summary}}
+            <span class="pull-right label label-{{.maintenance_window.BootstrapClass}}">{{.maintenance_window.Status}}</span></h1>
+    </div>
+    <div class="panel-body">
+        <span class="pull-right"><b>{{.maintenance_window.DisplayDuration}}</b></span>
+        <dl class="dl-horizontal">
+            <dt>Start:</dt>
+            <dd>{{.maintenance_window.DisplayStart}}</dd>
+            <dt>End:</dt>
+            <dd>{{.maintenance_window.DisplayEnd}}</dd>
+        </dl>
+
+<p>{{.maintenance_window.Description}}</p>
+    </div>
+</div>
+
+{{ if .user }}
+{{ if .user.Admin }}
+<form action="{{.maintenance_window.Path}}update" method="post">
+    <fieldset><legend>Update</legend>
+        <div class="form-group">
+            <label for="summary">Summary</label>
+            <input type="text" name="summary" value="{{.maintenance_window.Summary}}" id="summary" class="form-control"/>
+        </div>
+ 
+        <div class="form-group">
+            <label for="description">Description</label>
+            <textarea class="form-control" name="description">{{.maintenance_window.Description}}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="start">Start Time</label>
+            <input type="text" name="start" value="{{.maintenance_window.Start}}" id="start" class="form-control"/>
+        </div>
+
+        <div class="form-group">
+            <label for="end">End Time</label>
+            <input type="text" name="end" value="{{.maintenance_window.End}}" id="end" class="form-control"/>
+        </div>
+        
+        <input type="submit" class="btn btn-primary" value="update"/>
+    </fieldset>
+</form>
+
+
+<form action="{{.maintenance_window.Path}}delete" method="post">
+    <fieldset><legend>Delete</legend>
+        <input type="submit" class="btn btn-danger" value="delete"/>
+    </fieldset>
+</form>
+{{ end }}
+{{ end }}
+{{ end }}

@@ -484,3 +484,137 @@ func newMaintenanceWindow(w http.ResponseWriter, r *http.Request) {
 	//	http.Redirect(w, r, maintenanceWindow.Path(), http.StatusFound)
 	http.Redirect(w, r, "/", http.StatusFound)
 }
+
+var maintenanceWindowTemplate = template.Must(template.ParseFiles("templates/base.html",
+	"templates/maintenancewindow.html"))
+
+func showMaintenanceWindow(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "bad request", 404)
+		return
+	}
+	if len(parts) == 4 && parts[3] == "delete" {
+		deleteMaintenanceWindow(w, r)
+		return
+	}
+	if len(parts) == 4 && parts[3] == "update" {
+		updateMaintenanceWindow(w, r)
+		return
+	}
+
+	ikey, err := strconv.ParseInt(parts[2], 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	k := datastore.NewKey(ctx, "MaintenanceWindow", "", int64(ikey), nil)
+	var maintenanceWindow MaintenanceWindow
+	if err := datastore.Get(ctx, k, &maintenanceWindow); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	maintenanceWindow.Id = ikey
+	tc := make(map[string]interface{})
+	tc["maintenance_window"] = maintenanceWindow
+
+	tc = addUserToContext(ctx, tc, r)
+	if err := maintenanceWindowTemplate.Execute(w, tc); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+}
+
+func deleteMaintenanceWindow(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	u := user.Current(ctx)
+	if u == nil || !u.Admin {
+		http.Error(w, "you must be logged in as an admin", http.StatusForbidden)
+		return
+	}
+	if r.Method != "POST" {
+		http.Error(w, "bad request", 405)
+		return
+	}
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "bad request", 404)
+		return
+	}
+	ikey, err := strconv.ParseInt(parts[2], 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	k := datastore.NewKey(ctx, "MaintenanceWindow", "", int64(ikey), nil)
+	err = datastore.Delete(ctx, k)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, "/", http.StatusFound)
+}
+
+func updateMaintenanceWindow(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	u := user.Current(ctx)
+	if u == nil || !u.Admin {
+		http.Error(w, "you must be logged in as an admin", http.StatusForbidden)
+		return
+	}
+	if r.Method != "POST" {
+		http.Error(w, "bad request", 405)
+		return
+	}
+	parts := strings.Split(r.URL.Path, "/")
+	if len(parts) < 3 {
+		http.Error(w, "bad request", 404)
+		return
+	}
+	summary := r.FormValue("summary")
+	if summary == "" {
+		http.Error(w, "bad request. need summary", 400)
+		return
+	}
+	ikey, err := strconv.ParseInt(parts[2], 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	k := datastore.NewKey(ctx, "MaintenanceWindow", "", int64(ikey), nil)
+	var maintenanceWindow MaintenanceWindow
+	err = datastore.RunInTransaction(ctx, func(ctx appengine.Context) error {
+		if err := datastore.Get(ctx, k, &maintenanceWindow); err != nil {
+			return err
+		}
+		maintenanceWindow.Id = k.IntID()
+		maintenanceWindow.Summary = summary
+		maintenanceWindow.Description = r.FormValue("description")
+
+		start, err := time.Parse("2006-01-02 15:04:05 -0700 MST", r.FormValue("start"))
+		if err != nil {
+			start = maintenanceWindow.Start
+		}
+		maintenanceWindow.Start = start
+
+		end, err := time.Parse("2006-01-02 15:04:05 -0700 MST", r.FormValue("end"))
+		if err != nil {
+			end = maintenanceWindow.End
+		}
+
+		maintenanceWindow.End = end
+
+		_, err = datastore.Put(ctx, k, &maintenanceWindow)
+		if err != nil {
+			return err
+		}
+		return nil
+	}, nil)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	http.Redirect(w, r, maintenanceWindow.Path(), http.StatusFound)
+}
