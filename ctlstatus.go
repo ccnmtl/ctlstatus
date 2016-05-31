@@ -11,5 +11,5 @@ func init() {
 	http.HandleFunc("/", index)
 	http.HandleFunc("/incident/new", newIncident)
 	http.HandleFunc("/incident/", showIncident)
-	//	http.HandleFunc("/maintenance/new", newMaintenanceWindow)
+	http.HandleFunc("/maintenance/new", newMaintenanceWindow)
 }

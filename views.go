@@ -381,3 +381,51 @@ func updateIncident(w http.ResponseWriter, r *http.Request) {
 	}
 	http.Redirect(w, r, incident.Path(), http.StatusFound)
 }
+
+func newMaintenanceWindow(w http.ResponseWriter, r *http.Request) {
+	ctx := appengine.NewContext(r)
+	u := user.Current(ctx)
+	if u == nil || !u.Admin {
+		http.Error(w, "you must be logged in as an admin", http.StatusForbidden)
+		return
+	}
+	if r.Method != "POST" {
+		http.Error(w, "bad request", 405)
+		return
+	}
+	summary := r.FormValue("summary")
+	if summary == "" {
+		http.Error(w, "bad request. need summary", 400)
+		return
+	}
+
+	start, err := time.Parse("2006-01-02 15:04:05", r.FormValue("start"))
+	if err != nil {
+		http.Error(w, "bad start time "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	end, err := time.Parse("2006-01-02 15:04:05", r.FormValue("end"))
+	if err != nil {
+		http.Error(w, "bad start time "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	key := datastore.NewIncompleteKey(ctx, "MaintenanceWindow", nil)
+	maintenanceWindow := &MaintenanceWindow{
+		Start:       start,
+		End:         end,
+		Summary:     summary,
+		Description: r.FormValue("description"),
+	}
+
+	nkey, err := datastore.Put(ctx, key, maintenanceWindow)
+	if err != nil {
+		ctx.Errorf("put failed")
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	maintenanceWindow.Id = nkey.IntID()
+	//	http.Redirect(w, r, maintenanceWindow.Path(), http.StatusFound)
+	http.Redirect(w, r, "/", http.StatusFound)
+}
