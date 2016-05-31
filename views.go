@@ -108,6 +108,21 @@ func weeklyAvailability(ctx appengine.Context) (float64, error) {
 	return calcAvailability(ctx, 7)
 }
 
+func upcomingMaintenanceWindows(ctx appengine.Context, now time.Time) ([]MaintenanceWindow, error) {
+	q := datastore.NewQuery("MaintenanceWindow").
+		Filter("Start >", now).
+		Order("Start").Limit(10)
+	upcomingMaintenanceWindows := make([]MaintenanceWindow, 0, 10)
+	keys, err := q.GetAll(ctx, &upcomingMaintenanceWindows)
+	if err != nil {
+		return []MaintenanceWindow{}, err
+	}
+	for i := 0; i < len(upcomingMaintenanceWindows); i++ {
+		upcomingMaintenanceWindows[i].Id = keys[i].IntID()
+	}
+	return upcomingMaintenanceWindows, nil
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	ctx := appengine.NewContext(r)
 	now := time.Now()
@@ -126,17 +141,10 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// upcoming maintenance windows
-	q = datastore.NewQuery("MaintenanceWindow").
-		Filter("Start >", now).
-		Order("Start").Limit(10)
-	upcomingMaintenanceWindows := make([]MaintenanceWindow, 0, 10)
-	keys, err = q.GetAll(ctx, &upcomingMaintenanceWindows)
+	upcomingMaintenanceWindows, err := upcomingMaintenanceWindows(ctx, now)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
-	}
-	for i := 0; i < len(upcomingMaintenanceWindows); i++ {
-		upcomingMaintenanceWindows[i].Id = keys[i].IntID()
 	}
 
 	tc := make(map[string]interface{})
