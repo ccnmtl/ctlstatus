@@ -56,6 +56,9 @@ func BootstrapClassFromStatus(s string) string {
 		"investigating": "warning",
 		"outage":        "danger",
 		"resolved":      "success",
+		"completed":     "success",
+		"ongoing":       "danger",
+		"upcoming":      "info",
 	}
 	return classes[s]
 }

@@ -21,7 +21,7 @@
             {{ if .upcoming_maintenance_windows }}
             <ul class="list-group">
                 {{ range .upcoming_maintenance_windows }}
-                <li class="list-group-item"><b>{{.Summary}}</b> {{.DisplayStart}} {{.DisplayDuration}}</li>
+                <li class="list-group-item list-group-item-{{.BootstrapClass}}"><b>{{.Summary}}</b> {{.DisplayStart}} {{.DisplayDuration}}</li>
                 {{ end }}
             </ul>
             {{ else }}
@@ -62,33 +62,68 @@
     </div>
 </div>
 
-{{ if .incidents }}
-<h2>Recent Incidents</h2>
-{{ range .incidents }}
-<div class="panel panel-default panel-{{.BootstrapClass}}">
-    <div class="panel-heading">
-        <h3>{{.StartDate}}:
-        <a href="{{.Path}}">{{.Summary}}</a>
-        <span class="pull-right label label-{{.BootstrapClass}}">{{.Status}}</span></h3>
+<div class="row">
+    <div class="col-md-6">
+        {{ if .incidents }}
+        <h2>Recent Incidents</h2>
+        {{ range .incidents }}
+        <div class="panel panel-default panel-{{.BootstrapClass}}">
+            <div class="panel-heading">
+                <h3>{{.StartDate}}:
+                    <a href="{{.Path}}">{{.Summary}}</a>
+                    <span class="pull-right label label-{{.BootstrapClass}}">{{.Status}}</span></h3>
+            </div>
+            <div class="panel-body">
+                <span class="pull-right"><b>{{.DisplayDuration}}</b></span>
+                <dl class="dl-horizontal">
+                    <dt>Started:</dt>
+                    <dd>{{.DisplayStart}}</dd>
+                    {{ if eq .Status "resolved" }}
+                    <dt>Ended:</dt>
+                    <dd>{{.DisplayEnd}}</dd>
+                    {{ end }}
+                </dl>
+                <p>{{.Description}}</p>
+            </div>
+        </div>
+        {{ end }}
+        {{ else }}
+        <p>No Recent Incidents</p>
+        {{ end }}
     </div>
-    <div class="panel-body">
-        <span class="pull-right"><b>{{.DisplayDuration}}</b></span>
-        <dl class="dl-horizontal">
-            <dt>Started:</dt>
-            <dd>{{.DisplayStart}}</dd>
-            {{ if eq .Status "resolved" }}
-            <dt>Ended:</dt>
-            <dd>{{.DisplayEnd}}</dd>
-            {{ end }}
-        </dl>
-        
-        <p>{{.Description}}</p>
+
+    <div class="col-md-6">
+        {{ if .maintenance_windows }}
+        <h2>Recent Maintenance Windows</h2>
+        {{ range .maintenance_windows }}
+        <div class="panel panel-default panel-{{.BootstrapClass}}">
+            <div class="panel-heading">
+                <h3>{{.StartDate}}:
+                    <a href="{{.Path}}">{{.Summary}}</a>
+                    <span class="pull-right label label-{{.BootstrapClass}}">{{.Status}}</span></h3>
+            </div>
+            <div class="panel-body">
+                <span class="pull-right"><b>{{.DisplayDuration}}</b></span>
+                <dl class="dl-horizontal">
+                    <dt>Started:</dt>
+                    <dd>{{.DisplayStart}}</dd>
+                    {{ if eq .Status "resolved" }}
+                    <dt>Ended:</dt>
+                    <dd>{{.DisplayEnd}}</dd>
+                    {{ end }}
+                </dl>
+                
+                <p>{{.Description}}</p>
+            </div>
+        </div>
+        {{ end }}
+        {{ else }}
+        <p>No Recent MaintenanceWindows</p>
+        {{ end }}
     </div>
+
+    
 </div>
-{{ end }}
-{{ else }}
-<p>No Recent Incidents</p>
-{{ end }}
 
 {{ if .user }}
 {{ if .user.Admin }}
