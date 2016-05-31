@@ -227,7 +227,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	}
 	tc["weekly_availability"] = weekly_availability
 	tc = addUserToContext(ctx, tc, r)
-	tc["now"] = now.Format("2006-01-02 15:04 -0700 MST")
+	tc["now"] = now.In(NYC).Format("2006-01-02 15:04 -0700 MST")
 	if err := indexTemplate.Execute(w, tc); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}

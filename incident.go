@@ -78,21 +78,21 @@ func (i Incident) Updates(ctx appengine.Context, k *datastore.Key) ([]Update, er
 }
 
 func (i Incident) StartDate() string {
-	return i.Start.Format("Jan 2")
+	return i.Start.In(NYC).Format("Jan 2")
 }
 
 func (i Incident) DisplayStart() string {
-	return i.Start.Format("Mon Jan 2 15:04")
+	return i.Start.In(NYC).Format("Mon Jan 2 15:04")
 }
 
 func (i Incident) DisplayEnd() string {
-	return i.End.Format("Mon Jan 2 15:04")
+	return i.End.In(NYC).Format("Mon Jan 2 15:04")
 }
 
 func (i Incident) EditStart() string {
-	return i.Start.Format("2006-01-02 15:04 -0700 MST")
+	return i.Start.In(NYC).Format("2006-01-02 15:04 -0700 MST")
 }
 
 func (i Incident) EditEnd() string {
-	return i.End.Format("2006-01-02 15:04 -0700 MST")
+	return i.End.In(NYC).Format("2006-01-02 15:04 -0700 MST")
 }
