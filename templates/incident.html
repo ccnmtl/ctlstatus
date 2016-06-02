@@ -75,24 +75,28 @@
                     
                     <div class="form-group">
                         <label for="description">Description</label>
-                        <textarea class="form-control" name="description">{{.incident.Description}}</textarea>
+                        <textarea class="form-control" name="description" rows="7">{{.incident.Description}}</textarea>
+                        <span id="status-description" class="help-block">This should always describe the overall <em>current</em> state of the incident. Markdown supported.</span>
                     </div>
 
                     <div class="form-group">
                         <label for="start">Start Time</label>
                         <input type="text" name="start" value="{{.incident.EditStart}}" id="start" class="form-control"/>
+                        <span id="help-start" class="help-block">The earliest time that users may have been affected by this incident.</span>
                     </div>
 
                     {{ if eq .incident.Status "resolved" }}        
                     <div class="form-group">
                         <label for="end">End Time</label>
                         <input type="text" name="end" value="{{.incident.EditEnd}}" id="end" class="form-control"/>
+                        <span id="hel-end" class="help-block">The latest time that users may have been affected by this incident. Does not include additional root-cause analysis or remediation time.</span>
                     </div>
                     {{ end }}
                     
                     <div class="form-group">
                         <label for="update">Update Comment</label>
-                        <textarea class="form-control" name="update" placeholder="update"></textarea>
+                        <textarea class="form-control" name="update" placeholder="update" rows="5"></textarea>
+                        <span id="help-comment" class="help-block">Markdown supported</span>
                     </div>
                 </div>
                 <div class="modal-footer">
