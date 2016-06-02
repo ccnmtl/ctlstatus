@@ -2,8 +2,11 @@ package ctlstatus
 
 import (
 	"fmt"
+	"html/template"
 	"strconv"
 	"time"
+
+	"github.com/russross/blackfriday"
 
 	"appengine"
 	"appengine/datastore"
@@ -95,4 +98,8 @@ func (i Incident) EditStart() string {
 
 func (i Incident) EditEnd() string {
 	return i.End.In(NYC).Format("2006-01-02 15:04 -0700 MST")
+}
+
+func (i Incident) RenderDescription() template.HTML {
+	return template.HTML(string(blackfriday.MarkdownCommon([]byte(i.Description))))
 }

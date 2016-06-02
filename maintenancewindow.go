@@ -2,8 +2,11 @@ package ctlstatus
 
 import (
 	"fmt"
+	"html/template"
 	"strconv"
 	"time"
+
+	"github.com/russross/blackfriday"
 )
 
 type MaintenanceWindow struct {
@@ -68,4 +71,8 @@ func (i MaintenanceWindow) EditStart() string {
 
 func (i MaintenanceWindow) EditEnd() string {
 	return i.End.In(NYC).Format("2006-01-02 15:04 -0700 MST")
+}
+
+func (i MaintenanceWindow) RenderDescription() template.HTML {
+	return template.HTML(string(blackfriday.MarkdownCommon([]byte(i.Description))))
 }
