@@ -21,9 +21,12 @@
         <h2>Timeline</h2>
         <ul class="list-group">
             {{ range .updates }}
-            <li class="list-group-item">
+            <li class="list-group-item list-group-item-{{.BootstrapClass}}">
                 <span class="label label-{{.BootstrapClass}} pull-right">{{.Status}}</span>
-                <span class="text-muted">{{.DisplayTimestamp}}</span>: {{.Comment}}</li>
+                <span class="text-muted">{{.DisplayTimestamp}}</span></li>
+            {{ if .Comment }}
+                <li class="list-group-item">{{.RenderComment}}</li>
+                {{ end }}
             {{ end }}
         </ul>
     </div>
