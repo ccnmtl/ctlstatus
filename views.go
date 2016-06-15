@@ -237,7 +237,7 @@ func currentIncident(incidents []Incident) *Incident {
 	// assumes that incidents come in sorted most recent first
 	now := time.Now()
 	for _, incident := range incidents {
-		if incident.End.After(now) || incident.Status == "outage" {
+		if incident.End.After(now) || incident.Status == "outage" || incident.Status == "investigating" {
 			return &incident
 		}
 	}
