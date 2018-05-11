@@ -1,39 +1,41 @@
-<!DOCTYPE HTML>
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        
-      <title>CTL Status</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 
-      <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-      <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
-      <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-      <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-  </head>
+<title>CTL: Status</title>
 
-  <body role="document">
-      <nav class="navbar navbar-inverse">
-          <div class="container">
-              <div class="navbar-header">
-                  <a class="navbar-brand" href="/">CTL Status</a>
-              </div>
-              <div id="navbar" class="navbar-collapse">
-                  <ul class="nav navbar-nav navbar-right">
-                      <li>
-                          {{ if .user }}
-                          <a href="{{.signout_url}}">sign out ({{.user}})</a>
-                          {{ else }}
-                          <a href="{{.signin_url}}">sign in</a>
-                          {{ end }}
-                      </li>
-                  </ul>
-              </div>
-          </div>
-      </nav>
-      <div id="content" class="container" role="main">
-      {{template "content" .}}
+<link rel="stylesheet" href="/static/css/main.css" />
+
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <span>1-212-854-1692</span>
+            <span>
+                <a href="mailto:ColumbiaCTL@columbia.edu">
+                    ColumbiaCTL@columbia.edu
+                </a>
+            </span>
+        </div>
+        <div class="logo">
+            <a href="https://ctl.columbia.edu/">
+                <img src="/static/images/ctllogo.png"
+                   alt="Columbia CTL" id="logo">
+            </a>
+        </div>
+
+        <div class="status" id="content">
+        {{template "content" .}}
+        </div>
     </div>
-  </body>
+</body>
 </html>

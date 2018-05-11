@@ -1,252 +1,207 @@
 {{define "content"}}
-
-<div class="row jumbotron">
-    <div class="col-md-6">
-        {{ if .current }}
-        <div class="alert alert-{{.current.BootstrapClass}}"><h1>{{.current.Status}}</h1>
+<div class="sub-container">
+    <h3>Current Status</h3>
+    {{ if .current }}
+        <div class="alert alert-{{.current.BootstrapClass}}">
+            {{ if .current.Status }}
+            <div><strong>{{.current.Status}}</strong></div>
+            {{ end }}
             <p><a href="{{.current.Path}}">{{.current.Summary}}</a></p>
         </div>
-        {{ else }}
-        {{ if .ongoing_maintenance_windows }}
-        <div class="alert alert-warning"><h1>Maintenance</h1>
-            <p>In a scheduled maintenance window</p>
-        </div>
-        {{ else }}
-        <div class="alert alert-success"><h1>OK</h1>
-            <p>No known issues at this time</p>
-        </div>
-        {{ end }}
-        {{ end }}
-    </div>
-
-    <div class="col-md-6">
-        {{ if .ongoing_maintenance_windows }}
-        <h2>Ongoing Maintenance Windows</h2>
-            {{ range .ongoing_maintenance_windows }}
-            <div class="alert alert-{{.BootstrapClass}}">
-                <h2><a href="{{.Path}}">{{.Summary}}</a></h2>
-                <p>{{.DisplayStart}} - {{.DisplayEnd}}</p>
-                <p>{{.Description}}</p>
-            </div>
-            {{ end }}
-        {{ else }}
-        <div class="alert alert-success">
-            <p>Not in a Maintenance Window</p>
-        </div>
-        {{ end }}
-
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Upcoming Maintenance Windows
-            </div>
-            {{ if .upcoming_maintenance_windows }}
-            <ul class="list-group">
-                {{ range .upcoming_maintenance_windows }}
-                <li class="list-group-item list-group-item-{{.BootstrapClass}}"><a href="{{.Path}}"><b>{{.Summary}}</b> {{.DisplayStart}} {{.DisplayDuration}}</a></li>
+    {{ else }}
+    {{ if .ongoing_maintenance_windows }}
+        <div class="alert alert-warning">
+            <h4>In a scheduled maintenance window</h4>
+            <ul>
+                {{ range .ongoing_maintenance_windows }}
+                    <li><a href="{{.Path}}"><b>{{.Summary}}</b> {{.DisplayStart}} - {{.DisplayEnd}}</a></li>
                 {{ end }}
             </ul>
-            {{ else }}
-            <div class="panel-body"><p>No upcoming Maintenance Windows</p></div>
-            {{ end }}
         </div>
-        
-    </div>
-    
+    {{ else }}
+        <div class="alert alert-success">
+            <h4>No known issues at this time</h4>
+        </div>
+        {{ end }}
+    {{ end }}
 </div>
 
-{{ if .user }}
-{{ if .user.Admin }}
-
-<hr />
-
-<div class="btn-group" role="group">
-    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newIncidentModal">
-        New Incident
-    </button>
-
-    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#newMaintModal">
-        Schedule Maintenance Window
-    </button>
+{{ if .upcoming_maintenance_windows }}
+<div class="sub-container">
+    <h3>Upcoming Maintenance Windows</h3>
+    <ul class="list-group">
+        {{ range .upcoming_maintenance_windows }}
+        <li class="list-group-item list-group-item-{{.BootstrapClass}}"><a href="{{.Path}}"><b>{{.Summary}}</b> {{.DisplayStart}} {{.DisplayDuration}}</a></li>
+        {{ end }}
+    </ul>
 </div>
-
-<hr />
-
-<form action="/incident/new" method="post" class="form">
-    <div class="modal fade" id="newIncidentModal" tabindex="-1" role="dialog" aria-labelledby="newIncidentModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="newIncidentModalLabel">New Incident</h4>
-                </div>
-                <div class="modal-body">
-
-                    <div class="form-group">
-                        <label for="summary">Summary</label>
-                        <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select name="status" class="form-control" name="status" id="status">
-                            <option value="investigating" selected>investigating</option>
-                            <option value="outage">confirmed outage</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea class="form-control" name="description" placeholder="Description of Incident" rows="7"></textarea>
-                        <span id="help-incident-description" class="help-block">Markdown supported</span>
-                    </div>
-
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <input type="submit" value="new incident" class="btn btn-primary"/>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
-
-
-<form action="/maintenance/new" method="post" class="form">
-
-    <div class="modal fade" id="newMaintModal" tabindex="-1" role="dialog" aria-labelledby="newMaintModalLabel">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-                    <h4 class="modal-title" id="newMaintModalLabel">New Maintenance Window</h4>
-                </div>
-                <div class="modal-body">
-
-                    <div class="form-group">
-                        <label for="summary">Summary</label>
-                        <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="start-m">Start Time</label>
-                        <input type="text" name="start" value="{{.now}}" id="start-m" class="form-control"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="end-m">End Time</label>
-                        <input type="text" name="end" value="{{.now}}" id="end-m" class="form-control"/>
-                    </div>
-                    <div class="form-group">
-                        <label for="description">Description</label>
-                        <textarea class="form-control" name="description" placeholder="Description of Maintenance Window" rows="7"></textarea>
-                        <span id="help-maint-description" class="help-block">Markdown supported</span>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    <input type="submit" value="new maintenance window" class="btn btn-primary"/>
-                </div>
-            </div>
-        </div>
-    </div>
-</form>
-{{ end }}
 {{ end }}
 
-<div class="row">
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Availability Stats
-            </div>
-            <div class="panel-body">
-                <dl class="dl-horizontal">
-                    <dt>Yearly:</dt>
-                    <dd>{{printf "%.04f" .yearly_availability}}%</dd>
-                    <dt>Monthly:</dt>
-                    <dd>{{printf "%.04f" .monthly_availability}}%</dd>
-                    <dt>Weekly:</dt>
-                    <dd>{{printf "%.04f" .weekly_availability}}%</dd>
-                </dl>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-6">
-        <div class="panel panel-default">
-            <div class="panel-heading">Elsewhere</div>
-            <div class="panel-body">
-                <p>Other related status pages</p>
-                <ul class="list-group">
-                    <li class="list-group-item"><a href="http://cuitalerts.columbia.edu/">CUIT Alerts</a></li>
-                    <li class="list-group-item"><a href="https://status.linode.com/">Linode</a></li>
-                    <li class="list-group-item"><a href="http://status.aws.amazon.com/">AWS</a></li>
-                    <li class="list-group-item"><a href="https://status.github.com/">Github</a></li>            
-                </ul>
-            </div>
-        </div>
-    </div>
+<div class="sub-container">
+<h3>Availability Statistics</h3>
+<div>Yearly: {{printf "%.04f" .yearly_availability}}%</div>
+<div>Monthly: {{printf "%.04f" .monthly_availability}}%</div>
+<div>Weekly: {{printf "%.04f" .weekly_availability}}%</div>
 </div>
 
-<div class="row">
-    <div class="col-md-6">
-        {{ if .incidents }}
-        <h2>Recent Incidents</h2>
-        {{ range .incidents }}
-        <div class="panel panel-default panel-{{.BootstrapClass}}">
-            <div class="panel-heading">
-                <h3>{{.StartDate}}:
-                    <a href="{{.Path}}">{{.Summary}}</a>
-                    <span class="pull-right label label-{{.BootstrapClass}}">{{.Status}}</span></h3>
-            </div>
-            <div class="panel-body">
-                <span class="pull-right"><b>{{.DisplayDuration}}</b></span>
-                <dl class="dl-horizontal">
-                    <dt>Started:</dt>
-                    <dd>{{.DisplayStart}}</dd>
-                    {{ if eq .Status "resolved" }}
-                    <dt>Ended:</dt>
-                    <dd>{{.DisplayEnd}}</dd>
-                    {{ end }}
-                </dl>
-                {{.RenderDescription}}
-            </div>
-        </div>
-        {{ end }}
-        {{ else }}
-        <p>No Recent Incidents</p>
-        {{ end }}
-    </div>
+<div class="sub-container">
+<h3>Related Status Sites</h3>
+<ul>
+    <li><a href="http://cuitalerts.columbia.edu/">CUIT Alerts</li>
+    <li><a href="http://status.aws.amazon.com/">AWS</a></li>
+    <li><a href="http://stats.pingdom.com/tdmmfmbt03rn">Campus Press</a></li>
+    <li><a href="https://status.github.com/">Github</a></li>
+    <li><a href="http://www.google.com/appsstatus#hl=en">GoogleApps Status</a></li>
+    <li><a href="http://status.wikispaces.com/">Wikispaces Status</a></li>
+</ul>
+</div>
 
-    <div class="col-md-6">
-        {{ if .maintenance_windows }}
-        <h2>Recent Maintenance Windows</h2>
-        {{ range .maintenance_windows }}
-        <div class="panel panel-default panel-{{.BootstrapClass}}">
-            <div class="panel-heading">
-                <h3>{{.StartDate}}:
-                    <a href="{{.Path}}">{{.Summary}}</a>
-                    <span class="pull-right label label-{{.BootstrapClass}}">{{.Status}}</span></h3>
-            </div>
-            <div class="panel-body">
-                <span class="pull-right"><b>{{.DisplayDuration}}</b></span>
-                <dl class="dl-horizontal">
-                    <dt>Started:</dt>
-                    <dd>{{.DisplayStart}}</dd>
-                    {{ if eq .Status "resolved" }}
-                    <dt>Ended:</dt>
-                    <dd>{{.DisplayEnd}}</dd>
-                    {{ end }}
-                </dl>
-                
-                {{.RenderDescription}}
-            </div>
-        </div>
-        {{ end }}
-        {{ else }}
-        <p>No Recent MaintenanceWindows</p>
-        {{ end }}
-    </div>
+{{ if .incidents }}
+<div class="sub-container">
+    <h3>Recent Incidents</h3>
+    <table class="table table-bordered">
+    <tr><th>Date</th><th>Description</th><th>Started</th><th>Ended</th><th>Duration</th><th>Status</th></tr>
+    {{ range .incidents }}
+        <tr>
+            <td>{{.StartDate}}</td>
+            <td><a href="{{.Path}}">{{.Summary}}</a></td>
+            <td>{{.DisplayStart}}</td>
+            <td>{{ if eq .Status "resolved" }}{{.DisplayEnd}}{{ end }}</td>
+            <td>{{.DisplayDuration}}</td>
+            <td><span class="label label-{{.BootstrapClass}}">{{.Status}}</span></td>
+        </tr>
+    {{ end }}
+    </table>
+</div>
+{{ end }}
 
+{{ if .maintenance_windows }}
+<div class="sub-container">
+    <h3>Recent Maintenance Windows</h3>
+    <table class="table table-bordered">
+    <tr><th>Date</th><th>Description</th><th>Started</th><th>Ended</th><th>Duration</th><th>Status</th></tr>
+    {{ range .maintenance_windows }}
+        <tr>
+            <td>{{.StartDate}}</td>
+            <td><a href="{{.Path}}">{{.Summary}}</a></td>
+            <td>{{.DisplayStart}}</td>
+            <td>{{ if eq .Status "resolved" }}{{.DisplayEnd}}{{ end }}</td>
+            <td>{{.DisplayDuration}}</td>
+            <td><span class="label label-{{.BootstrapClass}}">{{.Status}}</span></td>
+        </tr>
+    {{ end }}
+    </table>
+</div>
+{{ end }}
+
+<div class="sub-container">
+<h3>What is this site?</h3>
+<p>The software development team at the Center for Teaching & Learning continuously monitors the status of applications and related services. If there are any interruptions in service, a note will be posted here.</p>
+</div>
+
+<hr />
+<div class="sub-container">
+    <h3>Manage</h3>
+    <ul class="user-links">
+    {{ if .user }}
+        <li><a type="button" href="{{.signout_url}}">sign out ({{.user}})</a></li>
     
+        {{ if .user.Admin }}
+            <li>
+                <a href="#" data-toggle="modal" data-target="#newIncidentModal">
+                    New Incident
+                </a>
+            </li>
+            <li>
+                <a href="#" data-toggle="modal" data-target="#newMaintModal">
+                    Schedule Maintenance Window
+                </a>
+            </li>
+         {{ end }}
+    {{ else }}
+        <li><a href="{{.signin_url}}">sign in</a></li>
+    {{ end }}
+    </ul>
+
+    {{ if .user }}
+        {{ if .user.Admin }}
+        <form action="/incident/new" method="post" class="form">
+            <div class="modal fade" id="newIncidentModal" tabindex="-1" role="dialog" aria-labelledby="newIncidentModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="newIncidentModalLabel">New Incident</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="form-group">
+                                <label for="summary">Summary</label>
+                                <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="status">Status</label>
+                                <select name="status" class="form-control" name="status" id="status">
+                                    <option value="investigating" selected>investigating</option>
+                                    <option value="outage">confirmed outage</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" name="description" placeholder="Description of Incident" rows="7"></textarea>
+                                <span id="help-incident-description" class="help-block">Markdown supported</span>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <input type="submit" value="new incident" class="btn btn-primary"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <form action="/maintenance/new" method="post" class="form">
+
+            <div class="modal fade" id="newMaintModal" tabindex="-1" role="dialog" aria-labelledby="newMaintModalLabel">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                            <h4 class="modal-title" id="newMaintModalLabel">New Maintenance Window</h4>
+                        </div>
+                        <div class="modal-body">
+
+                            <div class="form-group">
+                                <label for="summary">Summary</label>
+                                <input type="text" name="summary" placeholder="Summary" id="summary" class="form-control"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="start-m">Start Time</label>
+                                <input type="text" name="start" value="{{.now}}" id="start-m" class="form-control"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="end-m">End Time</label>
+                                <input type="text" name="end" value="{{.now}}" id="end-m" class="form-control"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" name="description" placeholder="Description of Maintenance Window" rows="7"></textarea>
+                                <span id="help-maint-description" class="help-block">Markdown supported</span>
+                            </div>
+
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                            <input type="submit" value="new maintenance window" class="btn btn-primary"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+        {{ end }}
+    {{ end }}
 </div>
-
-
+ 
 {{end}}

@@ -1,0 +1,56 @@
+body {
+    background-color: #fff;
+    font-family: "Open Sans", Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: 1.7em;
+}
+
+h3 {
+    margin-bottom: 5px
+}
+
+.container {
+    margin: 0 auto;
+    max-width: 850px;
+    min-width: 350px;
+}
+
+.header {
+    font-family: 'Cardo', Georgia, "Times New Roman", "serif !important";
+    width: 100%;
+    height: 30px;
+    background-color: #073654;
+    color: white;
+    text-align: right;
+    padding-top: 4px;
+}
+
+.header span {
+    margin-right: 10px;
+}
+
+.header a {
+    color: white;
+}
+
+.logo {
+    padding-top: 25px;
+    text-align: center;
+    border-bottom: 0.25px solid #eee;
+}
+
+.logo img {
+    margin-bottom: 25px;
+}
+
+.sub-container {
+    margin-bottom: 30px;
+}
+
+.alert h4 {
+    margin-bottom: 0;
+}
+
