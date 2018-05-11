@@ -1,8 +1,10 @@
 all: test
 
-test: build
+test:
 	goapp test
 
-runserver: build
+runserver:
 	dev_appserver.py app.yaml
 
+deploy: test
+	gcloud app deploy app.yaml index.yaml --project ctlstatus
