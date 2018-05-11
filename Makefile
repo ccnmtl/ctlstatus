@@ -1,5 +1,8 @@
-runserver:
-	../go_appengine/goapp serve
+all: test
 
-test:
-	../go_appengine/goapp test
+test: build
+	goapp test
+
+runserver: build
+	dev_appserver.py app.yaml
+
