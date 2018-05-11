@@ -1,13 +1,18 @@
 {{define "content"}}
+<ol class="breadcrumb">
+  <li><a href="/">Home</a></li>
+  <li class="active">Maintenance Window</li>
+</ol>
+
 <div class="panel panel-default panel-{{.maintenance_window.BootstrapClass}}">
     <div class="panel-heading">
-        <h1>{{.maintenance_window.StartDate}}:
+        <h3>{{.maintenance_window.StartDate}}:
             {{.maintenance_window.Summary}}
-            <span class="pull-right label label-{{.maintenance_window.BootstrapClass}}">{{.maintenance_window.Status}}</span></h1>
+            <span class="pull-right label label-{{.maintenance_window.BootstrapClass}}">{{.maintenance_window.Status}}</span></h3>
     </div>
     <div class="panel-body">
         <span class="pull-right"><b>{{.maintenance_window.DisplayDuration}}</b></span>
-        <dl class="dl-horizontal">
+        <dl>
             <dt>Start:</dt>
             <dd>{{.maintenance_window.DisplayStart}}</dd>
             <dt>End:</dt>
@@ -24,11 +29,11 @@
 <hr />
 
 <div class="btn-group" role="group">
-    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#updateModal">
+    <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#updateModal">
         Update/Edit
     </button>
 
-    <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" data-target="#deleteModal">
+    <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#deleteModal">
         Delete
     </button>
 </div>
